@@ -17,7 +17,7 @@ sysPath.append(osPath.join(osPath.split( sysPath[0])[0],'packages'))
 
 
 # useage:   dcmPlanCreator(spotData=<dcmDATA class spots>, file=<template dicom file>, oFile=<output file location and name>)
-def dicomPlanCreator(spotData=None, file=None, oFile=None):
+def writeDICOMplan(spotData=None, file=None, oFile=None):
     from fileOps import chooseFile
     from fileOps import chooseOutFile
     from dicomOps import dicomRead

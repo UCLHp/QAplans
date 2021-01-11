@@ -21,7 +21,7 @@ sysPath.append(osPath.split(sysPath[0])[0])
 
 
 
-def qaSpotGenerator(qaType=None):
+def spotGenerator(qaType=None):
     from qaPlanCreator import qaPlanType
     from easygui import multenterbox
     from fileOps import chooseFile, fileRead
@@ -191,7 +191,7 @@ def qaSpotGenerator(qaType=None):
 
     ###  Need to add in a whole slew of error handling to catch bad input  ###
     ###  Error handling and spot data ordering  ###
-      #  Check a plan actually contains beams 
+      #  Check a plan actually contains beams
 
 
     return(qaPlanVals)
