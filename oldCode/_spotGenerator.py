@@ -21,11 +21,10 @@ sysPath.append(osPath.split(sysPath[0])[0])
 
 
 
-def qaSpotGenerator(qaType=None):
-    from qaPlanCreator import qaPlanType
-    from easygui import multenterbox
-    from fileOps import chooseFile, fileRead
-    from dicomOps import PLANdata, BEAMdata, SPOTdata
+def spotGenerator(qaType=None):
+    from _qaType import qaPlanType
+    from easygui import fileopenbox, multenterbox
+    from _pbtDICOM import PLANdata, BEAMdata, SPOTdata
 
 
     if qaType == None:
@@ -92,7 +91,7 @@ def qaSpotGenerator(qaType=None):
     elif qaType[0] == 'SG-ME-MGA':
         bxMsg = bxMsg + 'A grid of spots at multiple energies and multiple gantry angles\nCan be used to either create a series of grids, dose planes, or a dose cube\n\nEnergy should be given in MeV\nCentral spot on beam-axis\nOdd number of spots required for symmetric fields\nGantry angles should be a comma separated list\n\ntMU is the technical MU used by Varian'
         bxOpts = ['Plan Name', 'Gantry Angle', 'Lowest Energy', 'Highest Energy', 'Energy spacing', 'Nspot X', 'Nspot Y', 'Spot spacing (mm)', 'tMU per spot']
-        bxVals = ['SG-ME-MGA', '0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330', 70, 240, 5, 3, 3, 7, 50]
+        bxVals = ['SG-ME-MGA', '0, 90, 180, 270', 70, 240, 5, 3, 3, 7, 50]
 
         planName, gAngle, Emin, Emax, delE, Nx, Ny, Sep, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
         gAngle, Emin, Emax, delE, Nx, Ny, Sep, sMU = ([float(_) for _ in gAngle.split(',')], float(Emin), float(Emax), float(delE), int(Nx), int(Ny), float(Sep), float(sMU))
@@ -107,7 +106,7 @@ def qaSpotGenerator(qaType=None):
           #  [BLANK], beam name, gantry angle
           #  ....... (repeat for each desired beam)
 
-        csvFile = chooseFile(title='Choose the .csv file containg the desired spot list')
+        csvFile = fileopenbox(title='Choose the .csv file containg the desired spot list')
         line = [l.strip().split(',') for l in open(csvFile[0]) if '#' not in l]
 
         #  populate the plan data structure from the CSV file
@@ -191,7 +190,7 @@ def qaSpotGenerator(qaType=None):
 
     ###  Need to add in a whole slew of error handling to catch bad input  ###
     ###  Error handling and spot data ordering  ###
-      #  Check a plan actually contains beams 
+      #  Check a plan actually contains beams
 
 
     return(qaPlanVals)

@@ -17,44 +17,41 @@ sysPath.append(osPath.join(osPath.split( sysPath[0])[0],'packages'))
 
 
 # useage:   dcmPlanCreator(spotData=<dcmDATA class spots>, file=<template dicom file>, oFile=<output file location and name>)
-def dicomPlanCreator(spotData=None, file=None, oFile=None):
-    from fileOps import chooseFile
-    from fileOps import chooseOutFile
-    from dicomOps import dicomRead
+def writeDICOMplan(spotData=None, iFile=None, oFile=None):
+    from os import path as osPath
+    from easygui import fileopenbox, filesavebox, diropenbox
     import datetime
     from random import randint
     from copy import deepcopy
-
+    from pydicom.filereader import dcmread
 
 
 
     # if no dataset passed, request user input
     if spotData == None:
-        spotData = qaSpotGenerator()
+        print('requires input data');  raise SystemExit()
 
 
 
 
     # obtain the template plan, and read in the data
     ''' see if any way to store this within the plan but still give option '''
-    if file == None:
-        file, fPath, fName = chooseFile(title='select the template DICOM file to convert')
-    else:
-        fPath, fName = osPath.split(file)[0], osPath.split(file)[1]
+    if iFile == None:
+        iFile = fileopenbox(title='select the template DICOM file to convert')
+        iPath, iName = osPath.split(iFile)[0], osPath.split(iFile)[1]
 
 
 
 
     # obtain the output file location
     if oFile == None:
-        oFile, oPath, oName = chooseOutFile() # dir=<directory>, fname=None)
-    else:
+        oFile = filesavebox()
         oPath, oName = osPath.split(oFile)[0], osPath.split(oFile)[1]
 
 
 
 
-    fullDCMdata = dicomRead(file=file, title='select template dicom file')
+    fullDCMdata = dcmread(iFile)
 
 
 

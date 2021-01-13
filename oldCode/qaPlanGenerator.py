@@ -1,19 +1,18 @@
-### add python modules folder in OS sensitive fashion
+import easygui as eg
+
 from os import path as osPath
-from sys import path as sysPath
-sysPath.append(osPath.join(osPath.split(sysPath[0])[0],'packages'))
 
-
-'''
-###   Create a QA plan file either for TPS or MC
-# User input required to create either single spots of spot grids
-# Will also later have ability to input CSV of spot positions and weights
-'''
+from _pbtDICOM import PLANdata, BEAMdata, SPOTdata
+from _qaType import qaPlanType
+from _spotGenerator import spotGenerator
+from _writeDICOMplan import writeDICOMplan
 
 
 
-# identify the type of QA plan to create
-from qaPlanCreator import qaPlanType
+
+
+
+
 planType = qaPlanType()
 # for testing - setting to most complex scenario
 # [['SS-SE', 'SS-ME', 'SS-MGA', 'SG-SE', 'SG-ME', 'SG-ME-MGA', 'CSV'], ['TPS', 'MC', 'both']]
@@ -21,14 +20,7 @@ planType = qaPlanType()
 
 
 
-# generate the spot data for the QA plan
-from qaPlanCreator import qaSpotGenerator
-# produced data in the format
-# qaPlanVals = [pName, numBeams, [beam]]
-#              |_   [bName, gAngle, numCP, [CP]]
-#                   |_   [En, [X], [Y], sizeX, sizeY, [sMeterset]]
-from qaPlanCreator import qaSpotGenerator
-spotData = qaSpotGenerator(planType)
+spotData = spotGenerator(planType)
 # # to expand to a 3 beam plan for testing purposes
 # spotData.numBeams = 3
 # from copy import deepcopy
@@ -37,23 +29,6 @@ spotData = qaSpotGenerator(planType)
 
 
 
-
-'''
-# should the plan be split into individual energy layers
-# if qaType[0] == None:
-if 'ME' in qaType[0]:
-    bxTitle = 'Separate plans?'
-    # bxMsg = 'Do you wish to split each beam into separate energy layers?\n\nIf so, the plan will be split into MULITPLE PLANS\nEach plan will be a single energy layer for a single beam\n\nPlan naming convention will be:  <plan name>-<beam name>-<energy>.dcm\n\nOnly recommended for single beam QA plans'
-    bxMsg = 'Do you wish to split the spots into MULTIPLE PLANS?\nEach plan will be a single energy layer or gantry angle\n\nOnly recommended for single beam QA plans'
-    bxOpts = ['Separate', 'Combined']
-    qaType.append(buttonbox(title=bxTitle, msg=bxMsg, choices=bxOpts, default_choice='Combined', cancel_choice=None))
-    if qaType[2] == None:  exit()
-'''
-
-
-
-# splitting the data if necessary to create multiple plans
-from dicomOps import PLANdata, BEAMdata, SPOTdata
 
 if planType[1] in ('TPS', 'both'):
     #  create TPS plan files
@@ -65,19 +40,26 @@ if planType[1] in ('TPS', 'both'):
     #   - if from multiple beam angles:
     #       - if only a single energy layer will already be covered by stock
     #       - if multiple energy layers, separate plans both for each gantry angle with all energy layers (separate beams), and each energy layer with all gantry angles
-    #
 
-    from fileOps import chooseFile
+
 
     #  location of the template DICOM file to amend
-    file, fPath, fName = chooseFile(title='select the template DICOM file to convert')
+    iFile = eg.fileopenbox(title='template DICOM', msg='select the template \
+                          DICOM file for conversion', filetypes=['*.dcm'])
+    iPath, iName = osPath.split(iFile)[0], osPath.split(iFile)[1]
+
+
 
     # selecting an output location and then creating dicom files
-    from fileOps import chooseDir
-    oPath = chooseDir(title='Navigate INTO the output directory for TPS')
+    oPath = eg.diropenbox(title='output Directory', msg='Navigate INTO the \
+                          output directory', default=str(iPath))
+
+
 
     #  add spotData into qaPlans as a list to be passed when creating DICOM plans - this is the basic minimum dataset
     qaPlans = [spotData]
+
+
 
     ###  determine next step on whether a single or multiple gantry angles
 
@@ -152,13 +134,19 @@ if planType[1] in ('TPS', 'both'):
         print('No beams????')
         exit()
 
+
+
+
+
     #  writing out to dicom files
     # useage:   dcmPlanCreator(spotData=<dcmDATA class spots>, file=<template dicom file>, oFile=<output file location and name>)
-    from dicomOps import dicomPlanCreator
     for plan in qaPlans:
         oFile = osPath.join(oPath, str(plan.pName) + '.dcm')
         # print('oFile: ', oFile)
-        dicomPlanCreator(spotData=plan, file=file, oFile=oFile)
+        writeDICOMplan(spotData=plan, iFile=iFile, oFile=oFile)
+
+
+
 
 
 '''  Still need to work on this in the new architecture\
