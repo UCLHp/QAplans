@@ -97,7 +97,7 @@ def qaPlanType(qaType={}):
 
 
 ###  Using the values from qaPlanType, obtain all the necessary spot details
-def qaSpotDefine(qaType=None):
+def qaSpotParameters(qaType=None):
     from easygui import buttonbox, multenterbox, fileopenbox
     import re
 
@@ -271,61 +271,6 @@ def qaSpotDefine(qaType=None):
 
 
 
-###  From a list of spots in the simple list format:
-  #  gantry angle, energy, x, y, MU
-  #  convert to the pre-generated pbtDICOM classes
-def qaSpotArrange(data=None):
-
-    from pbtDICOM import PLANdata, BEAMdata, SPOTdata
-
-    if not data:
-        from pbtMod.qaPlanInput import qaSpotDefine
-        data, doseRate = qaSpotDefine()
-
-
-    qaPlan = PLANdata()
-    qaPlan.pName = 'qaPlan'
-
-    #  identify the number of unique beam angles
-    angleSet = set([_[0] for _ in data])
-    qaPlan.numBeams = len(angleSet)
-    #  create a beam entry for each beam angle
-    qaPlan.beam = [BEAMdata() for _ in range(len(angleSet))]
-
-    for an, angle in enumerate(angleSet):
-        #  extract the data at this beam angle
-        beamData = [_ for _ in data if _[0] == angle]
-        #  input various parameters for this beam angle
-        qaPlan.beam[an].bName = 'G'+str(angle)
-        qaPlan.beam[an].type = 'TREATMENT'
-        qaPlan.beam[an].gAngle = angle
-        qaPlan.beam[an].cAngle = 0.0
-        qaPlan.beam[an].bMeterset = sum(map(float,[_[4] for _ in beamData]))
-
-        #  identify the number of energy layers at this angle
-        energies = set([_[1] for _ in beamData])
-        qaPlan.beam[an].numCP = len(energies)
-        #  create a control point (in protons each CP is an energy layer)
-        #  for each energy
-        qaPlan.beam[an].CP = [SPOTdata() for _ in range(len(energies))]
-
-        for en, energy in enumerate(energies):
-            #  the data for spots in this energy layer
-            spotData = [_ for _ in beamData if _[1] == energy]
-            qaPlan.beam[an].CP[en].En = energy
-            for sp in spotData:
-                qaPlan.beam[an].CP[en].X.append(sp[2])
-                qaPlan.beam[an].CP[en].Y.append(sp[3])
-                qaPlan.beam[an].CP[en].sMeterset.append(sp[4])
-
-    return(qaPlan)
-
-
-
-
-
-
-
 if __name__ == '__main__':
 
     x = qaPlanType()
@@ -333,14 +278,3 @@ if __name__ == '__main__':
 
     y = qaSpotDefine()
     print(y)
-
-    #  data taken from pbtMod/docs/test.csv
-    #  [gAngle, energy, X, Y, MU]
-    data = [[0.0, 50.0, 10.0, 10.0, 100.0], [0.0, 50.0, 20.0, 20.0, 100.0], [0.0, 100.0, -10.0, -10.0, 200.0], [0.0, 100.0, -15.0, 20.0, 250.0], [0.0, 100.0, 10.0, 10.0, 80.0], [80.0, 50.0, 10.0, 10.0, 100.0], [80.0, 50.0, 20.0, 20.0, 100.0], [80.0, 100.0, -10.0, -10.0, 200.0], [310.0, 50.0, 20.0, 20.0, 100.0], [310.0, 100.0, -10.0, -10.0, 200.0], [310.0, 100.0, -15.0, 20.0, 250.0], [-130.0, 100.0, 10.0, 10.0, 80.0]]
-    z = qaSpotArrange(data=data)
-    print(z)
-    print(vars(z))
-    for b in z.beam:
-        print(vars(b))
-        for c in b.CP:
-            print(vars(c))

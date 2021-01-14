@@ -4,24 +4,36 @@ This package will create QA plans to use during commissioning.
 
 Plans will be based on the test patients
 
-- zzz_PBT_comm_Something
-- zzz_PBT_comm_SomethingElse
-- etc.
+- zzz_PBT_comm_EnergyLayers
+- zzz_PBT_comm_Isocentre
 
 _BADGES_ - can add badges of metadata such as version info ([shields.io](https://shields.io/) gives many good options).
 
 ## Components
 
-**qaPlanInput.py** - collects the information used to define the list of spots to be generated.
+**pbtDICOM.py** - contains the trimmed down DICOM class
+
+- **_PLANdata_** - plan name, number of beams, and a list of beams
+- **_BEAMdata_** - beam name, type, gantry angle, couch angle, Meterset unit, number of control-points (each CP is an energy layer)
+- **_SPOTdata_** - energy, x and y position, x and y spot size, spot meterset
+
+**qaPlanDefine.py** - collects the information used to define the list of spots to be generated.
 
 - **_qaPlanType_** - gets the user to define the type of plan to create
-- **_qaSpotDefine_** - uses input from qaPlanType to produce a list of spots
-- **_qaSpotArrange_** - takes the list of spots and populates teh pbtDICOM classes
+- **_qaSpotParameters_** - uses input from qaPlanType to request the required data from the user to create the plan, then generates the spots
 
-**qaSpotGenerate.py** - checks spot list and make deliverable, write out to an appropriate DICOM file.
+**convert2compactDICOM.py** - takes a list input data and converts it to the trimmed down DICOM class contained in pbtDICOM.py
 
-- **_qaSpotPrepare_** - check the supplied spots are within the deliverable range
-- **_qaPlanWrite_** - using a template `.dcm` plan, write out a new plan file
+- **_qaSpotConvert_** - does this task
+
+**qaPlanPrepare.py** - checks spot list and make deliverable, write out to an appropriate DICOM file.
+
+- **_qaSpotArrange_** - check the supplied spots are within the deliverable range, order the gantry angles, energy layers, and spot scanning for delivery. Also setup spots to control dose rate.
+- **_qaSpotPrepare_** - prepare the spot data for writing out, add intermediary spots at minimum dose rate to allow smooth stepping between energy layers, split beams into individual energy layers if required.
+
+**writeDICOM.py** - takes data in the compact DICOM class defined in pbtDICOM and writes it over a template `.dcm` file
+
+- **_overwriteDICOM_** - using a template `.dcm` plan, write out a new plan file
 
 ## Installation
 
@@ -38,9 +50,9 @@ easygui
 pysimplegui
 random
 re
+```
 
-
-There are template files stored in the `/doc` folder associated with this repo that should connect the plans to an appropriate phantom. It may be advisable to export an example plan from the patient you wish to import to for best results.
+There are template files stored in the `/data` folder associated with this repo that should connect the plans to an appropriate phantom. It may be advisable to export an example plan from the patient you wish to import to for best results.
 
 ### Tests
 
@@ -70,6 +82,7 @@ All code within this package distributed under [GNU GPL-3.0 (or higher)](https:/
 Full license text contained within the file LICENCE.
 
 ### (C) License for all programmes
+
 ```
 
 ### Copyright (C) 2020: Andrew J. Gosling
@@ -93,5 +106,4 @@ Full license text contained within the file LICENCE.
 # You should have received a copy of the GNU General Public License
 
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
-
 ```
