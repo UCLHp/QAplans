@@ -194,9 +194,12 @@ def qaSpotParameters(qaType=None):
         data = []
         #  now that have all the necessary values, generate the spots
         for an in gAngle:
-            for en in list(numpy.arange(Emax, Emin, delE)):
+            for en in numpy.arange(Emin, Emax, delE):
                 for x in range(Nx):
                     for y in range(Ny):
+                        print(an, en, \
+                                      (x-((Nx-1)/2))*Sep, \
+                                      (y-((Ny-1)/2))*Sep, sMU)
                         data.append( [an, en, \
                                       (x-((Nx-1)/2))*Sep, \
                                       (y-((Ny-1)/2))*Sep, sMU] )
@@ -204,6 +207,7 @@ def qaSpotParameters(qaType=None):
 
 
     # if doseRate not already defined set to minimum MU
+    print(data)
     try:
         doseRate
     except NameError:

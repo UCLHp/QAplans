@@ -73,8 +73,8 @@ def qaSpotConvert(data=None):
             FWHM = 28.9 - (0.338*energy) + ((2.32e-3)*energy**2) \
                     - ((7.39e-6)*energy**3) + ((9.04e-9)*energy**4)
             for sp in spotData:
-                qaPlan.beam[an].CP[en].sizeX.append(FWHM)
-                qaPlan.beam[an].CP[en].sizeY.append(FWHM)
+                qaPlan.beam[an].CP[en].sizeX = FWHM
+                qaPlan.beam[an].CP[en].sizeY = FWHM
                 qaPlan.beam[an].CP[en].X.append(sp[2])
                 qaPlan.beam[an].CP[en].Y.append(sp[3])
                 qaPlan.beam[an].CP[en].sMeterset.append(sp[4])
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     #  data taken from pbtMod/docs/test.csv
     #  [gAngle, energy, X, Y, MU]
     data = [[0.0, 50.0, 10.0, 10.0, 100.0], [0.0, 50.0, 20.0, 20.0, 100.0], [0.0, 100.0, -10.0, -10.0, 200.0], [0.0, 100.0, -15.0, 20.0, 250.0], [0.0, 100.0, 10.0, 10.0, 80.0], [80.0, 50.0, 10.0, 10.0, 100.0], [80.0, 50.0, 20.0, 20.0, 100.0], [80.0, 100.0, -10.0, -10.0, 200.0], [310.0, 50.0, 20.0, 20.0, 100.0], [310.0, 100.0, -10.0, -10.0, 200.0], [310.0, 100.0, -15.0, 20.0, 250.0], [-130.0, 100.0, 10.0, 10.0, 80.0]]
-    z = qaSpotArrange(data=data)
+    z = qaSpotConvert(data=data)
     print(z)
     print(vars(z))
     for b in z.beam:
