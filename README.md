@@ -78,13 +78,15 @@ Included tests, how to use them, what results to expect
 
 ## Usage
 
-How to use the programme, how to call the package
+The primary package is `_qaPlanGenerator.py`
 
-Examples of what it can do
+This will call the other modules contained within the folder.
+
+Some template DICOM files are indcluded in the folder `data/` from which you can build your plans. There is also a `test.csv` file that can be used to demonstrate how to create a `.csv` file that can be read by the programme for ultimate control of spot placement.
 
 ## Limitations / Known Bugs
 
-Sometimes the plans do not re-import into the current course open for the patient, this is under investigation.
+The UI needs an overhaul that I plan to do ASAP.
 
 ## Contribute
 
