@@ -66,12 +66,8 @@ To deactivate the virtual environment, simply type `deactivate`, and to remove t
 Any specifics, dependencies, use of PipEnv/requirements files
 
 ```python
-copy
-datetime
-easygui
-pysimplegui
-random
-re
+easygui==0.98.1
+pydicom==2.1.2
 ```
 
 There are template files stored in the `/data` folder associated with this repo that should connect the plans to an appropriate phantom. It may be advisable to export an example plan from the patient you wish to import to for best results.
