@@ -37,7 +37,29 @@ _BADGES_ - can add badges of metadata such as version info ([shields.io](https:/
 
 ## Installation
 
-Steps to take to install
+Clone this repo from github:
+
+```console
+git clone https://github.com/UCLHp/QAplans.git
+```
+
+Create an environment in which the code will run (these instructions use the basic python environment builder included with most Python installs). Open a command terminal and type the following:
+
+```console
+cd <path to github repo>/QAplans
+mkdir env
+python -m <path to github repo>/QAplans/env/
+```
+
+This creates the environment. Next navigate into the directory `<path to github repo>/QAplans/env/Scripts` and activate the environment with either `Scripts.bat` on Windows or `<SOMETHING HERE>` on Linux/Mac
+
+Finally, install the required packages. Navigate back to `<path to github repo>/QAplans` and run the following command which should install the packages and versions listed below.
+
+```console
+python -m pip install -r requirements.txt
+```
+
+To deactivate the virtual environment, simply type `deactivate`, and to remove the virtual environment delete the folder `env`.
 
 ### Requirements
 
