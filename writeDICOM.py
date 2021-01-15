@@ -18,21 +18,6 @@
 
 
 
-<<<<<<< HEAD:_writeDICOMplan.py
-# useage:   dcmPlanCreator(spotData=<dcmDATA class spots>, file=<template dicom file>, oFile=<output file location and name>)
-def writeDICOMplan(spotData=None, iFile=None, oFile=None):
-    from os import path as osPath
-    from easygui import fileopenbox, filesavebox, diropenbox
-    import datetime
-    from random import randint
-    from copy import deepcopy
-    from pydicom.filereader import dcmread
-=======
-
-###  Write out a DICOM file from the data stored in a DICOM data class
-  #  requires a template dicom plan from which all data is stripped
-  #  input should be in the pbtDICOM format
->>>>>>> dev:writeDICOM.py
 
 from os import getcwd, path as osPath
 from easygui import fileopenbox, filesavebox
@@ -59,16 +44,12 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
     # obtain the template plan, and read in the data
     ''' see if any way to store this within the plan but still give option '''
     if iFile == None:
-<<<<<<< HEAD:_writeDICOMplan.py
-        iFile = fileopenbox(title='select the template DICOM file to convert')
-=======
         iFile = fileopenbox( title='Template file',
                              msg='Select the template DICOM file\n \
                                   Results will be better if the template is \
                                   exported from the patient to which the \
                                   created plan will be added',
                              default=getcwd(), filetypes='*.dcm' )
->>>>>>> dev:writeDICOM.py
         iPath, iName = osPath.split(iFile)[0], osPath.split(iFile)[1]
 
 
@@ -76,14 +57,10 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
 
     # obtain the output file location
     if oFile == None:
-<<<<<<< HEAD:_writeDICOMplan.py
-        oFile = filesavebox()
-=======
         oFile = filesavebox( title='Output file',
                              default=osPath.split(iFile)[0] \
                                      + str(spotData.pName) + '.dcm',
                              filetypes='*.dcm' )
->>>>>>> dev:writeDICOM.py
         oPath, oName = osPath.split(oFile)[0], osPath.split(oFile)[1]
 
 
