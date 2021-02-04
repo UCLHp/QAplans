@@ -58,7 +58,7 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
     # obtain the output file location
     if oFile == None:
         oFile = filesavebox( title='Output file',
-                             default=osPath.split(iFile)[0] \
+                             default=osPath.split(iFile)[0] + 'RN.'\
                                      + str(spotData.pName) + '.dcm',
                              filetypes='*.dcm' )
         oPath, oName = osPath.split(oFile)[0], osPath.split(oFile)[1]
