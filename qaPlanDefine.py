@@ -40,7 +40,8 @@
   #  or a custom pattern defined in a .csv file (CSV)
 def qaPlanType(qaType={}):
 
-    from easygui import buttonbox
+    from os import getcwd
+    from easygui import buttonbox, fileopenbox
 
 
 
@@ -60,6 +61,11 @@ def qaPlanType(qaType={}):
     if qaType['type'] == None:
         print('Requires a defined spot pattern');  raise SystemExit()
 
+    if qaType['type'] == 'CSV':
+        #  request the CSV file
+        qaType['file'] = fileopenbox( title='select .csv spot file', msg=None,
+                                        default=getcwd(), filetypes='*.csv' )
+
 
 
     # is the output intended for the TPS or MC, or both
@@ -67,8 +73,8 @@ def qaPlanType(qaType={}):
     bxMsg = 'Do you need a QA file for the TPS, Monte-Carlo, or both'
     bxOpts = ['TPS', 'MC', 'both']
     qaType['output'] = buttonbox( title=bxTitle, msg=bxMsg, \
-                                  choices=bxOpts, default_choice='TPS', \
-                                  cancel_choice=None )
+                                    choices=bxOpts, default_choice='TPS', \
+                                    cancel_choice=None )
     if qaType['output'] == None:
         print('Output type must be defined');  raise SystemExit()
 
@@ -105,13 +111,14 @@ def qaSpotParameters(qaType=None):
     #     # DOSE RATE, 20
     #  gantry angle, energy, X, Y, MU
     if qaType['type'] == 'CSV':
-        #  request the CSV file
-        file = fileopenbox(title='select .csv spot file', msg=None,
-                              default=getcwd(), filetypes='*.csv')
+        if qaType['file'] == None:
+            #  request the CSV file
+            file = fileopenbox( title='select .csv spot file', msg=None,
+                                default=getcwd(), filetypes='*.csv' )
 
         head = []
         data = []
-        with open(file) as inFile:
+        with open(qaType['file']) as inFile:
             for line in inFile:
                 if line.startswith('#'):
                     head.append(line.strip())
