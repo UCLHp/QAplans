@@ -42,7 +42,7 @@ def qaSpotArrange(data=None, doseRate=None):
     #  gantry angle
     Alim = [0.0, 360.0, -180.0]  #  for angles given in 0 - 360 range
     #  beam energy
-    Elim = [70.0, 244.0]
+    Elim = [70.0, 245.0]
     Ejump = 10.0
     #  field size
     Xlim = [-20.0, 20.0]
@@ -85,11 +85,11 @@ def qaSpotArrange(data=None, doseRate=None):
     ###  Now work through all the data and make sure most effective setup
 
     ###  order the beams CCW from 180 post
-    def beamE(beam):
-        return beam.gAngle
-    print([_.gAngle for _ in data.beam])
-    data.beam.sort(key=beamE)
-    print([_.gAngle for _ in data.beam])
+    # def beamG(beam):
+    #     return beam.gAngle
+    # print([_.gAngle for _ in data.beam])
+    # data.beam.sort(key=beamG)
+    # print([_.gAngle for _ in data.beam])
 
     # print(sorted(data.beam))
     for bm in data.beam:
@@ -97,11 +97,18 @@ def qaSpotArrange(data=None, doseRate=None):
 
     ### order the energy layers from highest to lowest
     for bm in data.beam:
-        for cp in bm.CP:
-            pass
+        #  little function to return the energies of CP
+        def beamE(beamData):
+            return beamData.En
+        #  use the sorting inbuilt function
+        #  key used for sorting is the value returned by function beamE
+        #  reverse=True means listed from highest to lowest energy
+        bm.CP.sort(key=beamE, reverse=True)
 
     ### order the spots in a raster pattern scanning primarily in Y direction
     for bm in data.beam:
         for cp in bm.CP:
             # for sp in <something>:
                 pass
+
+    return(data, doseRate)
