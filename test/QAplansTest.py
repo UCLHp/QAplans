@@ -8,9 +8,9 @@ sys.path.append(os.path.split(fPath)[0])  #  add parent directory to $PATH
 
 # from QAplans import qaPlanType, qaSpotParameters
 from qaPlanDefine import qaPlanType, qaSpotParameters
-# from convert2compactDICOM import qaSpotConvert
+from convert2compactDICOM import qaSpotConvert
 # from qaPlanPrepare import qaSpotArrange
-# from writeDICOM import overwriteDICOM
+from writeDICOM import overwriteDICOM
 
 
 
@@ -20,9 +20,10 @@ from qaPlanDefine import qaPlanType, qaSpotParameters
 type = {}
 type['type']='CSV'
 type['output'] = 'TPS'
+type['file'] = 'C:\\Users\\andrew\\coding\\QAplans\\test\\test.csv'
 
 data, doseRate = qaSpotParameters(type)
 
-# dcmData = qaSpotConvert(data)
+dcmData = qaSpotConvert(data)
 
-# overwriteDICOM(dcmData)
+overwriteDICOM(dcmData)
