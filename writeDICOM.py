@@ -58,8 +58,8 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
     # obtain the output file location
     if oFile == None:
         oFile = filesavebox( title='Output file',
-                             default=osPath.split(iFile)[0] + 'RN.'\
-                                     + str(spotData.pName) + '.dcm',
+                             default=osPath.join(osPath.split(iFile)[0], 'RN.'\
+                                     + str(spotData.pName) + '.dcm'),
                              filetypes='*.dcm' )
         oPath, oName = osPath.split(oFile)[0], osPath.split(oFile)[1]
 
@@ -185,6 +185,8 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
 
 
         for c in range(0, 2*spotData.beam[b].numCP, 2):
+
+            # print('c:  ', c//2, 'En:  ', spotData.beam[b].CP[c//2].En)
 
             # Indexing
             fullDCMdata.IonBeamSequence[b].IonControlPointSequence[c].ControlPointIndex = c
