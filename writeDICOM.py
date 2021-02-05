@@ -65,7 +65,6 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
 
 
 
-
     fullDCMdata = dcmread(iFile)
 
 
@@ -229,7 +228,7 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
             fullDCMdata.IonBeamSequence[b].IonControlPointSequence[c].CumulativeMetersetWeight \
               = fullDCMdata.IonBeamSequence[b].IonControlPointSequence[c-1].CumulativeMetersetWeight
             fullDCMdata.IonBeamSequence[b].IonControlPointSequence[c+1].CumulativeMetersetWeight \
-              = fullDCMdata.IonBeamSequence[b].IonControlPointSequence[c+1].CumulativeMetersetWeight \
+              = fullDCMdata.IonBeamSequence[b].IonControlPointSequence[c].CumulativeMetersetWeight \
                 + sum(spotData.beam[b].CP[c//2].sMeterset)
 
             # and as a ratio of the total plane meterset
