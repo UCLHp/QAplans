@@ -40,7 +40,7 @@
   #  or a custom pattern defined in a .csv file (CSV)
 def qaPlanType(qaType={}):
 
-    from os import getcwd
+    import os
     from easygui import buttonbox, fileopenbox
 
 
@@ -64,7 +64,7 @@ def qaPlanType(qaType={}):
     if qaType['type'] == 'CSV':
         #  request the CSV file
         qaType['file'] = fileopenbox( title='select .csv spot file', msg=None,
-                                        default=getcwd(), filetypes='*.csv' )
+                                        default=os.getcwd(), filetypes='*.csv' )
 
 
 
@@ -91,7 +91,7 @@ def qaPlanType(qaType={}):
 ###  Using the values from qaPlanType, obtain all the necessary spot details
 def qaSpotParameters(qaType=None):
 
-    from os import getcwd
+    import os
     import re
     import numpy
     from easygui import buttonbox, multenterbox, fileopenbox
@@ -113,8 +113,10 @@ def qaSpotParameters(qaType=None):
     if qaType['type'] == 'CSV':
         if qaType['file'] == None:
             #  request the CSV file
-            file = fileopenbox( title='select .csv spot file', msg=None,
-                                default=getcwd(), filetypes='*.csv' )
+            qaType['file'] = fileopenbox( title='select .csv spot file', msg=None,
+                                default=os.getcwd(), filetypes='*.csv' )
+
+        planName = os.path.splitext(os.path.split(qaType['file'])[1])[0]
 
         head = []
         data = []
@@ -229,7 +231,7 @@ def qaSpotParameters(qaType=None):
 
 
 
-    return(data, doseRate, rangeShifter)
+    return(planName, data, doseRate, rangeShifter)
 
 
 

@@ -33,7 +33,7 @@ from pbtDICOM import PLANdata, BEAMdata, SPOTdata
 ###  From a list of spots in the simple list format:
   #  gantry angle, energy, x, y, MU
   #  convert to the pre-generated pbtDICOM classes
-def qaSpotConvert(data=None, rangeShifter=None):
+def qaSpotConvert(planName=None, data=None, rangeShifter=None):
 
     if not data:
         print('no input data supplied');  raise SystemExit()
@@ -41,7 +41,7 @@ def qaSpotConvert(data=None, rangeShifter=None):
 
 
     qaPlan = PLANdata()
-    qaPlan.pName = 'qaPlan'
+    qaPlan.pName = planName
 
     #  identify the number of unique beam angles
     angleSet = set([_[0] for _ in data])

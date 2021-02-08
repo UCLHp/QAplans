@@ -91,6 +91,10 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
 
 
 
+    '''  Fraction Group Sequence '''
+
+
+
     #  ReferencedBeamNumber and BeamMeterset
     #  Need one for each beam in plan, so multiply if separating energy layers
     fullDCMdata.FractionGroupSequence[0].NumberOfBeams = spotData.numBeams
@@ -112,6 +116,10 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
 
 
 
+    '''  Patient Setup Sequence '''
+
+
+
     # need a PatientSetupSequence for each beam
     fullDCMdata.PatientSetupSequence = \
       [ deepcopy(fullDCMdata.PatientSetupSequence[0]) \
@@ -119,6 +127,10 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
 
     for _ in range(spotData.numBeams):
         fullDCMdata.PatientSetupSequence[_].PatientSetupNumber = _+1
+
+
+
+    '''  Ion Beam Sequence '''
 
 
 
@@ -152,6 +164,7 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
         '''
         # Here is where the Range Shifter data needs to be added if included - DO LATER
         '''
+        fullDCMdata.IonBeamSequence[b].NumberOfRangeShifters = 1
         if spotData.beam[b].rs != None:
             fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterNumber = 1
             if spotData.beam[b].rs == 2:
@@ -193,9 +206,6 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
             if spotData.beam[b].rs == 5:
                 fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].RangeShifterWaterEquivalentThickness = 57.0
             fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].ReferencedRangeShifterNumber = '1'
-        # fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].SnoutPosition
-        # more range shifter settings
-        # fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].Range Shifter Settings Sequence
 
 
 
