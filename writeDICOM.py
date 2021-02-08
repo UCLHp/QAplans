@@ -164,8 +164,9 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
         '''
         # Here is where the Range Shifter data needs to be added if included - DO LATER
         '''
-        fullDCMdata.IonBeamSequence[b].NumberOfRangeShifters = 1
         if spotData.beam[b].rs != None:
+            fullDCMdata.IonBeamSequence[b].NumberOfRangeShifters = 1
+            fullDCMdata.IonBeamSequence[b].RangeShifterSequence = []
             fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterNumber = 1
             if spotData.beam[b].rs == 2:
                 fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterID = 'RS = 2cm'
@@ -196,6 +197,7 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
         fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].SnoutPosition \
           = 421.0
         if spotData.beam[b].rs != None:
+            fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence = []
             fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].RangeShifterSetting = 'IN'
             fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].IsocentreToRangeShifterDistance \
               = fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].SnoutPosition + 4.9
