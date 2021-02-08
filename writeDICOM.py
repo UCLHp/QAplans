@@ -152,7 +152,15 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
         '''
         # Here is where the Range Shifter data needs to be added if included - DO LATER
         '''
-
+        if spotData.beam[b].rs not None:
+            fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterNumber = 1
+            if spotData.beam[b].rs == 2:
+                fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterID = 'RS = 2cm'
+            if spotData.beam[b].rs == 3:
+                fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterID = 'RS = 3cm'
+            if spotData.beam[b].rs == 5:
+                fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterID = 'RS = 5cm'
+            fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterType = 'BINARY'
 
 
         # Creating Control Point entries
@@ -168,18 +176,37 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
 
         # filling in the Control Point information
         # first control point in each beam contains additional data such as gantry angle etc.
-        fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].GantryAngle\
+        fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].GantryAngle \
           = spotData.beam[b].gAngle
 
-        fullDCMdata.IonBeamSequence[b].IonControlPointSequence[-1].CumulativeMetersetWeight = 0
-        fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].CumulativeMetersetWeight = 0
-
-
-
         '''  more range shifter settings will have to go here'''
+        fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].SnoutPosition \
+          = 421.0
+        if spotData.beam[b].rs not None:
+            fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].RangeShifterSetting = 'IN'
+            fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].IsocentreToRangeShifterDistance \
+              = fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].SnoutPosition + 4.9
+            if spotData.beam[b].rs == 2:
+                fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].RangeShifterWaterEquivalentThickness = 23.0
+            if spotData.beam[b].rs == 3:
+                fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].RangeShifterWaterEquivalentThickness = 34.0
+            if spotData.beam[b].rs == 5:
+                fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].RangeShifterWaterEquivalentThickness = 57.0
+            fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].ReferencedRangeShifterNumber = 1
+              =
         # fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].SnoutPosition
         # more range shifter settings
         # fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].Range Shifter Settings Sequence
+      (300a, 0360)  Range Shifter Settings Sequence  1 item(s) ----
+         (300a, 0362) Range Shifter Setting               LO: 'IN'
+         (300a, 0364) Isocenter to Range Shifter Distance FL: 151.2207794189453
+         (300a, 0366) Range Shifter Water Equivalent Thic FL: 57.0
+         (300c, 0100) Referenced Range Shifter Number     IS: "1"
+
+
+
+        fullDCMdata.IonBeamSequence[b].IonControlPointSequence[-1].CumulativeMetersetWeight = 0
+        fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].CumulativeMetersetWeight = 0
 
 
 

@@ -44,6 +44,7 @@ class BEAMdata:
         self.bMeterset = ''  # the beam meterset
         self.numCP = ''  # number of control points for the beam
                          # each pair CP is an energy layer
+        self.rs = None  #  range shifter nominal thickness (2, 3, 5)
         self.CP = []
 
 
