@@ -49,6 +49,8 @@ if __name__ == '__main__':
 
     dcmData = qaSpotConvert(data)
 
+    dcmData, doseRate = qaSpotArrange(data=dcmData, doseRate=doseRate)
+
     overwriteDICOM(dcmData)
 
 
