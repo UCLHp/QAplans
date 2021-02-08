@@ -228,7 +228,9 @@ def qaSpotParameters(qaType=None):
         doseRate = min([_[4] for _ in data])
 
 
-    if not rangeShifter:
+    try:
+        rangeShifter
+    except NameError:
         bxTitle = 'Range Shifter'
         bxMsg = 'Choose a Range Shifter if desired'
         bxOpts = ['None', '5 cm', '3 cm', '2 cm']
@@ -238,9 +240,6 @@ def qaSpotParameters(qaType=None):
         if rs == '5 cm':  rangeShifter = 5
         if rs == '3 cm':  rangeShifter = 3
         if rs == '2 cm':  rangeShifter = 2
-    try:
-        rangeShifter
-    except NameError:
         rangeShifter = None
 
 
