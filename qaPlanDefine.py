@@ -124,6 +124,8 @@ def qaSpotParameters(qaType=None):
                     head.append(line.strip())
                     if 'DOSE RATE' in line:
                         doseRate = float(line.split(',')[1].strip())
+                    if 'RS' in line:
+                        rangeShifter = float(line.split(',')[1].strip())
                 else:
                     data.append([float(_) for _ in line.strip().split(',')])
 
@@ -220,9 +222,14 @@ def qaSpotParameters(qaType=None):
     except NameError:
         doseRate = min([_[4] for _ in data])
 
+    try:
+        rangeShifter
+    except NameError:
+        rangeShifter = None
 
 
-    return(data, doseRate)
+
+    return(data, doseRate, rangeShifter)
 
 
 

@@ -33,7 +33,7 @@ from pbtDICOM import PLANdata, BEAMdata, SPOTdata
 ###  From a list of spots in the simple list format:
   #  gantry angle, energy, x, y, MU
   #  convert to the pre-generated pbtDICOM classes
-def qaSpotConvert(data=None):
+def qaSpotConvert(data=None, rangeShifter=None):
 
     if not data:
         print('no input data supplied');  raise SystemExit()
@@ -57,6 +57,8 @@ def qaSpotConvert(data=None):
         qaPlan.beam[an].type = 'TREATMENT'
         qaPlan.beam[an].gAngle = angle
         qaPlan.beam[an].cAngle = 0.0
+        if rangeShifter != None:
+            qaPlan.beam[an].rs = rangeShifter
         qaPlan.beam[an].bMeterset = sum(map(float,[_[4] for _ in beamData]))
 
         #  identify the number of energy layers at this angle

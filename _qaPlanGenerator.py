@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
     type = qaPlanType()
 
-    data, doseRate = qaSpotParameters(type)
+    data, doseRate, rangeShifter = qaSpotParameters(type)
 
     dcmData = qaSpotConvert(data)
 

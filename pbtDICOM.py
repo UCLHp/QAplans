@@ -40,11 +40,11 @@ class BEAMdata:
         self.type = ''  # beam type (TREATMENT or SETUP)
         self.gAngle = ''  # gantry angle for this beam
         self.cAngle = ''  # couch angle for this beam
+        self.rs = None  #  range shifter nominal thickness (2, 3, 5)
         self.bMetersetUnit = ''  # what units the Meterset parameter corresponds to
         self.bMeterset = ''  # the beam meterset
         self.numCP = ''  # number of control points for the beam
                          # each pair CP is an energy layer
-        self.rs = None  #  range shifter nominal thickness (2, 3, 5)
         self.CP = []
 
 
