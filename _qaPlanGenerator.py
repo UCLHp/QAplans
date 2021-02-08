@@ -39,10 +39,9 @@ if __name__ == '__main__':
     type = qaPlanType()
 
     planName, data, doseRate, rangeShifter = qaSpotParameters(type)
-    print(planName, data, doseRate, rangeShifter)
 
     dcmData = qaSpotConvert(planName=planName, data=data, rangeShifter=rangeShifter)
 
     dcmData, doseRate = qaSpotArrange(data=dcmData, doseRate=doseRate)
 
-    overwriteDICOM(dcmData)
+    overwriteDICOM(spotData=dcmData, iFile=None, oFile=type['file'])

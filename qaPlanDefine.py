@@ -54,7 +54,8 @@ def qaPlanType(qaType={}):
                   SG-SE:  Spot Grid (dose plane) at a Single Energy\n\
                   SG-ME:  Spot Grid (dose plane) at Multiple Energies\n\
               SG-ME-MGA:  Spot Grid (dose plane) at Multiple Energies and Multiple Gantry Angles\n\
-                    CSV:  Create a plan file from a pre-made .csv file of spot positions, energies, and MUs'
+                    CSV:  Create a plan file from a pre-made .csv file of format:\n\
+                          Gantry Angle, Energy, X, Y, MU'
     bxOpts = ['SS-SE', 'SS-ME', 'SS-MGA', 'SG-SE', 'SG-ME', 'SG-ME-MGA', 'CSV']
     qaType['type'] = buttonbox( title=bxTitle, msg=bxMsg, \
                                 choices=bxOpts, cancel_choice=None )
@@ -68,6 +69,7 @@ def qaPlanType(qaType={}):
 
 
 
+    '''
     # is the output intended for the TPS or MC, or both
     bxTitle = 'TPS or MC'
     bxMsg = 'Do you need a QA file for the TPS, Monte-Carlo, or both'
@@ -77,6 +79,7 @@ def qaPlanType(qaType={}):
                                     cancel_choice=None )
     if qaType['output'] == None:
         print('Output type must be defined');  raise SystemExit()
+    '''
 
 
 
@@ -148,9 +151,9 @@ def qaSpotParameters(qaType=None):
             bxOpts = ['Plan Name', 'Gantry Angle', 'Spot Energy', 'tMU per spot']
             bxVals = ['SS-SE', 270, 70, 50]
 
-            planName, gAngle, Emax, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
-            gAngle, Emax, sMU = ([float(gAngle)], float(Emax), float(sMU))
-            Emin, delE, Nx, Ny, Sep = (Emax+1.0, 10.0, 1, 1, 0.0)
+            planName, gAngle, Emin, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
+            gAngle, Emin, sMU = ([float(gAngle)], float(Emin), float(sMU))
+            Emax, delE, Nx, Ny, Sep = (Emin+1.0, 10.0, 1, 1, 0.0)
 
 
         elif qaType['type'] == 'SS-ME':
@@ -168,9 +171,9 @@ def qaSpotParameters(qaType=None):
             bxOpts = ['Plan Name', 'Gantry Angle', 'Spot Energy', 'tMU per spot']
             bxVals = ['SS-MGA', '0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330', 70, 50]
 
-            planName, gAngle, Emax, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
-            gAngle, Emax, sMU = ([float(_) for _ in gAngle.split(',')], float(Emax), float(sMU))  # gAngle = [float(_) for _ in gAngle.split(',')]
-            Emin, delE, Nx, Ny, Sep = (Emax+1.0, 10.0, 1, 1, 0.0)
+            planName, gAngle, Emin, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
+            gAngle, Emin, sMU = ([float(_) for _ in gAngle.split(',')], float(Emin), float(sMU))  # gAngle = [float(_) for _ in gAngle.split(',')]
+            Emax, delE, Nx, Ny, Sep = (Emin+1.0, 10.0, 1, 1, 0.0)
 
 
         elif qaType['type'] == 'SG-SE':
@@ -224,6 +227,17 @@ def qaSpotParameters(qaType=None):
     except NameError:
         doseRate = min([_[4] for _ in data])
 
+
+    if not rangeShifter:
+        bxTitle = 'Range Shifter'
+        bxMsg = 'Choose a Range Shifter if desired'
+        bxOpts = ['None', '5 cm', '3 cm', '2 cm']
+        rs = buttonbox( title=bxTitle, msg=bxMsg, choices=bxOpts, \
+                        cancel_choice=None )
+        if rs == 'None':  rangeShifter = None
+        if rs == '5 cm':  rangeShifter = 5
+        if rs == '3 cm':  rangeShifter = 3
+        if rs == '2 cm':  rangeShifter = 2
     try:
         rangeShifter
     except NameError:
