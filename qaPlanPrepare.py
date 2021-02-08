@@ -45,8 +45,8 @@ def qaSpotArrange(data=None, doseRate=None):
     Elim = [70.0, 245.0]
     Ejump = 10.0
     #  field size
-    Xlim = [-20.0, 20.0]
-    Ylim = [-30.0, 30.0]
+    Xlim = [-200.0, 200.0]
+    Ylim = [-300.0, 300.0]
     # dose rate
     minD = 5.0
 
