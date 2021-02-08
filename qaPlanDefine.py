@@ -174,9 +174,9 @@ def qaSpotParameters(qaType=None):
             bxOpts = ['Plan Name', 'Gantry Angle', 'Layer Energy', 'Nspot X', 'Nspot Y', 'Spot spacing (mm)', 'tMU per spot']
             bxVals = ['SG-SE', 270, 240, 5, 5, 7, 50]
 
-            planName, gAngle, Emax, Nx, Ny, Sep, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
-            gAngle, Emax, Nx, Ny, Sep, sMU = ([float(gAngle)], float(Emax), int(Nx), int(Ny), float(Sep), float(sMU))
-            Emin, delE = (Emax+1.0, 10.0)
+            planName, gAngle, Emin, Nx, Ny, Sep, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
+            gAngle, Emin, Nx, Ny, Sep, sMU = ([float(gAngle)], float(Emin), int(Nx), int(Ny), float(Sep), float(sMU))
+            Emax, delE = (Emin+1.0, 10.0)
 
 
         elif qaType['type'] == 'SG-ME':
@@ -207,6 +207,10 @@ def qaSpotParameters(qaType=None):
                         data.append( [an, en, \
                                       (x-((Nx-1)/2))*Sep, \
                                       (y-((Ny-1)/2))*Sep, sMU] )
+
+
+
+    # print(data)
 
 
 
