@@ -233,14 +233,15 @@ def qaSpotParameters(qaType=None):
     except NameError:
         bxTitle = 'Range Shifter'
         bxMsg = 'Choose a Range Shifter if desired'
-        bxOpts = ['None', '5 cm', '3 cm', '2 cm']
+        bxOpts = ['None', '2 cm', '3 cm', '5 cm']
         rs = buttonbox( title=bxTitle, msg=bxMsg, choices=bxOpts, \
                         cancel_choice=None )
         if rs == 'None':  rangeShifter = None
-        if rs == '5 cm':  rangeShifter = 5
-        if rs == '3 cm':  rangeShifter = 3
-        if rs == '2 cm':  rangeShifter = 2
-        rangeShifter = None
+        if rs == '2 cm':  rangeShifter = 2.0
+        if rs == '3 cm':  rangeShifter = 3.0
+        if rs == '5 cm':  rangeShifter = 5.0
+
+
 
 
 

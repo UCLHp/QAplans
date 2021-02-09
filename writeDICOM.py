@@ -43,14 +43,15 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
 
     # obtain the template plan, and read in the data
     ''' see if any way to store this within the plan but still give option '''
-    iFile = fileopenbox( title='Template file',
-                         msg='Select the template DICOM file\n \
-                              Results will be better if the template is \
-                              exported from the patient to which the \
-                              created plan will be added',
-                         default=os.path.join(os.path.dirname( os.path.realpath(__file__)), \
-                                                                'data', 'RN.template-wRS.dcm' ), \
-                         filetypes='*.dcm' )
+    # iFile = fileopenbox( title='Template file',
+    #                      msg='Select the template DICOM file\n \
+    #                           Results will be better if the template is \
+    #                           exported from the patient to which the \
+    #                           created plan will be added',
+    #                      default=os.path.join(os.path.dirname( os.path.realpath(__file__)), \
+    #                                                             'data', 'RN.template-wRS.dcm' ), \
+    #                      filetypes='*.dcm' )
+    iFile = os.path.join(os.path.dirname( os.path.realpath(__file__)), 'data', 'RN.template-wRS.dcm' )
     iPath, iName = os.path.split(iFile)[0], os.path.split(iFile)[1]
 
 
