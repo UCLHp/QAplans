@@ -38,7 +38,7 @@
 ###  Generate qaType which contains
   #  the spot patter - a single spot (SS), grid of spots (SG),
   #  or a custom pattern defined in a .csv file (CSV)
-def qaPlanType(qaType={}):
+def planType(qaType={}):
 
     import os
     from easygui import buttonbox, fileopenbox
@@ -98,7 +98,7 @@ def qaPlanType(qaType={}):
 
 
 ###  Using the values from qaPlanType, obtain all the necessary spot details
-def qaSpotParameters(qaType=None):
+def spotParameters(qaType=None):
 
     import os
     import re
@@ -246,6 +246,9 @@ def qaSpotParameters(qaType=None):
         if rs == '2 cm':  rangeShifter = 2.0
         if rs == '3 cm':  rangeShifter = 3.0
         if rs == '5 cm':  rangeShifter = 5.0
+
+    if rangeShifer is not None:
+        planName = planName + '_RS' + str(int(rangeShifer))
 
 
 

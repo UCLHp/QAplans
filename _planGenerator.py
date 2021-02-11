@@ -23,9 +23,9 @@
   #  Produce custom plans for commissioning and QA
   #  This effectively just calls a range of modules included alongside this file
 
-from qaPlanDefine import qaPlanType, qaSpotParameters
-from convert2compactDICOM import qaSpotConvert
-from qaPlanPrepare import qaSpotArrange
+from planDefine import planType, spotParameters
+from compactDICOM import spotConvert
+from planPrepare import spotArrange
 from writeDICOM import overwriteDICOM
 
 
@@ -36,12 +36,12 @@ from writeDICOM import overwriteDICOM
 
 if __name__ == '__main__':
 
-    type = qaPlanType()
+    type = planType()
 
-    planName, data, doseRate, rangeShifter = qaSpotParameters(type)
+    planName, data, doseRate, rangeShifter = spotParameters(type)
 
-    dcmData = qaSpotConvert(planName=planName, data=data, rangeShifter=rangeShifter)
+    dcmData = spotConvert(planName=planName, data=data, rangeShifter=rangeShifter)
 
-    dcmData, doseRate = qaSpotArrange(data=dcmData, doseRate=doseRate)
+    dcmData, doseRate = spotArrange(data=dcmData, doseRate=doseRate)
 
     overwriteDICOM(spotData=dcmData, iFile=None, oFile=type['file'])

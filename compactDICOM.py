@@ -19,10 +19,50 @@
 
 
 
-#  these are a subset of a full DICOM plan file
-#  these make it easier to handle only the most relevant fields
+###  A subset of the full pyDicom data class
+  #  Built to work with the programme dicomRead.py
 
-from pbtDICOM import PLANdata, BEAMdata, SPOTdata
+  #  Starts with PLANdata
+  #  For each beam, extend plan.beam[] list filling each with BEAMdata
+  #  For each control point, extend beam.CP[] filling each with SPOTdata
+
+
+
+
+
+class PLANdata:
+    def __init__(self):
+        self.pName = ''  # the name of the plan
+        self.numBeams = ''  # number of beams
+        self.beam = []  # list container to expand for each beam
+
+
+
+class BEAMdata:
+    def __init__(self):
+        self.bName = ''  # beam name
+        self.type = ''  # beam type (TREATMENT or SETUP)
+        self.gAngle = ''  # gantry angle for this beam
+        self.cAngle = ''  # couch angle for this beam
+        self.rs = None  #  range shifter nominal thickness (2, 3, 5)
+        self.bMetersetUnit = ''  # what units the Meterset parameter corresponds to
+        self.bMeterset = ''  # the beam meterset
+        self.numCP = ''  # number of control points for the beam
+                         # each pair CP is an energy layer
+        self.CP = []
+
+
+
+class SPOTdata:
+    def __init__(self):
+        self.En = ''  # energy for that CP (== layer)
+        self.X = []  # X position for each spot in layer
+        self.Y = []  # Y position for each spot in layer
+        self.sizeX = []  # TPS X FWHM (mm)
+        self.sizeY = []  # TPS Y FWHM (mm)
+        self.sMeterset = []  # meterset value for each spot
+        self.sMU = [] # spot MU, this is calculated later but required at initialisation
+
 
 
 
@@ -33,7 +73,7 @@ from pbtDICOM import PLANdata, BEAMdata, SPOTdata
 ###  From a list of spots in the simple list format:
   #  gantry angle, energy, x, y, MU
   #  convert to the pre-generated pbtDICOM classes
-def qaSpotConvert(planName=None, data=None, rangeShifter=None):
+def spotConvert(planName=None, data=None, rangeShifter=None):
 
     if not data:
         print('no input data supplied');  raise SystemExit()

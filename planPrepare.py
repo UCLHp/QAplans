@@ -35,7 +35,7 @@
   #  Also add in intermediate spots for large energy jumps
   #  Will also be worth double checking the validation for things like energy
   #    range and spot position
-def qaSpotArrange(data=None, doseRate=None):
+def spotArrange(data=None, doseRate=None):
 
     ###  Basic settings to translate into variables
       #  These dictate how plans are delivered
