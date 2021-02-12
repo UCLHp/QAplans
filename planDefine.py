@@ -247,7 +247,7 @@ def spotParameters(qaType=None):
         if rs == '3 cm':  rangeShifter = 3.0
         if rs == '5 cm':  rangeShifter = 5.0
 
-    if rangeShifer is not None:
+    if rangeShifter is not None:
         planName = planName + '_RS' + str(int(rangeShifer))
 
 
