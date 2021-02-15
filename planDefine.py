@@ -56,17 +56,19 @@ def planType(qaType={}):
     #           SG-ME-MGA:  Spot Grid (dose plane) at Multiple Energies and Multiple Gantry Angles\n\
     #                 CSV:  Create a plan file from a pre-made .csv file of format:\n\
     #                       Gantry Angle, Energy, X, Y, MU'
-    bxMsg = 'Select the QA file type you wish to create\n\n\
-                  SG-SE:  Spot Grid (dose plane) at a Single Energy\n\
-                  SG-ME:  Spot Grid (dose plane) at Multiple Energies\n\
-                    CSV:  Create a plan file from a pre-made .csv file of format:\n\
-                          Gantry Angle, Energy, X, Y, MU'
-    # bxOpts = ['SS-SE', 'SS-ME', 'SS-MGA', 'SG-SE', 'SG-ME', 'SG-ME-MGA', 'CSV']
-    bxOpts = ['SG-SE', 'SG-ME', 'CSV']
-    qaType['type'] = buttonbox( title=bxTitle, msg=bxMsg, \
-                                choices=bxOpts, cancel_choice=None )
-    if qaType['type'] == None:
-        print('Requires a defined spot pattern');  raise SystemExit()
+    # bxMsg = 'Select the QA file type you wish to create\n\n\
+    #               SG-SE:  Spot Grid (dose plane) at a Single Energy\n\
+    #               SG-ME:  Spot Grid (dose plane) at Multiple Energies\n\
+    #                 CSV:  Create a plan file from a pre-made .csv file of format:\n\
+    #                       Gantry Angle, Energy, X, Y, MU'
+    # # bxOpts = ['SS-SE', 'SS-ME', 'SS-MGA', 'SG-SE', 'SG-ME', 'SG-ME-MGA', 'CSV']
+    # bxOpts = ['SG-SE', 'SG-ME', 'CSV']
+    # qaType['type'] = buttonbox( title=bxTitle, msg=bxMsg, \
+    #                             choices=bxOpts, cancel_choice=None )
+    # if qaType['type'] == None:
+    #     print('Requires a defined spot pattern');  raise SystemExit()
+
+    qaType['type'] = 'CSV'
 
     if qaType['type'] == 'CSV':
         #  request the CSV file
