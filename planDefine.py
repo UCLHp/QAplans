@@ -56,40 +56,25 @@ def planType(qaType={}):
     #           SG-ME-MGA:  Spot Grid (dose plane) at Multiple Energies and Multiple Gantry Angles\n\
     #                 CSV:  Create a plan file from a pre-made .csv file of format:\n\
     #                       Gantry Angle, Energy, X, Y, MU'
-    # bxMsg = 'Select the QA file type you wish to create\n\n\
-    #               SG-SE:  Spot Grid (dose plane) at a Single Energy\n\
-    #               SG-ME:  Spot Grid (dose plane) at Multiple Energies\n\
-    #                 CSV:  Create a plan file from a pre-made .csv file of format:\n\
-    #                       Gantry Angle, Energy, X, Y, MU'
-    # # bxOpts = ['SS-SE', 'SS-ME', 'SS-MGA', 'SG-SE', 'SG-ME', 'SG-ME-MGA', 'CSV']
-    # bxOpts = ['SG-SE', 'SG-ME', 'CSV']
-    # qaType['type'] = buttonbox( title=bxTitle, msg=bxMsg, \
-    #                             choices=bxOpts, cancel_choice=None )
-    # if qaType['type'] == None:
-    #     print('Requires a defined spot pattern');  raise SystemExit()
-
-    qaType['type'] = 'CSV'
+    bxMsg = 'Select the QA file type you wish to create\n\n\
+                  SG-SE:  Spot Grid (dose plane) at a Single Energy\n\
+                  SG-ME:  Spot Grid (dose plane) at Multiple Energies\n\
+                    CSV:  Create a plan file from a pre-made .csv file of format:\n\
+                          Gantry Angle, Energy, X, Y, MU'
+    # bxOpts = ['SS-SE', 'SS-ME', 'SS-MGA', 'SG-SE', 'SG-ME', 'SG-ME-MGA', 'CSV']
+    bxOpts = ['SG-SE', 'SG-ME', 'CSV']
+    qaType['type'] = buttonbox( title=bxTitle, msg=bxMsg, \
+                                choices=bxOpts, cancel_choice=None )
+    if qaType['type'] == None:
+        print('Requires a defined spot pattern');  raise SystemExit()
 
     if qaType['type'] == 'CSV':
         #  request the CSV file
         qaType['file'] = fileopenbox( title='select .csv spot file', msg=None,
-                                        default=os.getcwd(), filetypes='*.csv' )
-
-
-
-    '''
-    # is the output intended for the TPS or MC, or both
-    bxTitle = 'TPS or MC'
-    bxMsg = 'Do you need a QA file for the TPS, Monte-Carlo, or both'
-    bxOpts = ['TPS', 'MC', 'both']
-    qaType['output'] = buttonbox( title=bxTitle, msg=bxMsg, \
-                                    choices=bxOpts, default_choice='TPS', \
-                                    cancel_choice=None )
-    if qaType['output'] == None:
-        print('Output type must be defined');  raise SystemExit()
-    '''
-
-
+                                        default=os.path.dirname(os.path.realpath(__file__)), \
+                                        filetypes='*.csv' )
+    else:
+        qaType['file'] = os.path.dirname(os.path.realpath(__file__))
 
     return(qaType)
 
