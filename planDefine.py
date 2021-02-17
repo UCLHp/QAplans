@@ -62,9 +62,10 @@ def planType(qaType={}):
                     CSV:  Create a plan file from a pre-made .csv file of format:\n\
                           Gantry Angle, Energy, X, Y, MU'
     # bxOpts = ['SS-SE', 'SS-ME', 'SS-MGA', 'SG-SE', 'SG-ME', 'SG-ME-MGA', 'CSV']
-    bxOpts = ['SG-SE', 'SG-ME', 'CSV']
+    bxOpts = ['CSV', 'SG-SE', 'SG-ME']
     qaType['type'] = buttonbox( title=bxTitle, msg=bxMsg, \
-                                choices=bxOpts, cancel_choice=None )
+                                choices=bxOpts, default_choice=bxOpts[0], \
+                                cancel_choice=None )
     if qaType['type'] == None:
         print('Requires a defined spot pattern');  raise SystemExit()
 
@@ -228,7 +229,7 @@ def spotParameters(qaType=None):
         bxMsg = 'Choose a Range Shifter if desired'
         bxOpts = ['None', '2 cm', '3 cm', '5 cm']
         rs = buttonbox( title=bxTitle, msg=bxMsg, choices=bxOpts, \
-                        cancel_choice=None )
+                        default_choice=bxOpts[0], cancel_choice=None )
         if rs == 'None':  rangeShifter = None
         if rs == '2 cm':  rangeShifter = 2.0
         if rs == '3 cm':  rangeShifter = 3.0
