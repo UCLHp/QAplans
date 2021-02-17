@@ -71,6 +71,73 @@ class SPOTdata:
 
 
 ###  From a list of spots in the simple list format:
+  #  Pass a list of lists
+  #  each list within the list of lists represents a beam
+  #  within each beam, an entry for each spot with the format:
+     #  gantry angle, energy, x, y, MU
+  #  convert to the pre-generated pbtDICOM classes
+def spotConvert_new(planName=None, data=None, rangeShifter=None):
+
+    if not data:
+        print('no input data supplied');  raise SystemExit()
+
+    #  check the integrity of the data
+    for bm in data:
+        angleSet = set([_[0] for _ in bm])
+        if len(angleSet) > 1:
+            print('cannot have two gantry angles in a single beam')
+            raise SystemExit()
+
+
+
+    qaPlan = PLANdata()
+    qaPlan.pName = planName
+
+    #  create a beam entry for each beam angle
+    qaPlan.numBeams = len(data)
+    qaPlan.beam = [BEAMdata() for _ in range(len(data))]
+
+    for bm, beamData in enumerate(data):
+
+        #  input various parameters for this beam angle
+        qaPlan.beam[bm].bName = 'E '+str(beamData[0][1])
+        qaPlan.beam[bm].type = 'TREATMENT'
+        qaPlan.beam[bm].gAngle = beamData[0][0]
+        qaPlan.beam[bm].cAngle = 0.0
+        if rangeShifter != None:
+            qaPlan.beam[bm].rs = rangeShifter
+        qaPlan.beam[bm].bMeterset = sum(map(float,[_[4] for _ in beamData]))
+
+        #  identify the number of energy layers at this angle
+        energies = set([_[1] for _ in beamData])
+        qaPlan.beam[bm].numCP = len(energies)
+        #  create a control point (in protons each CP is an energy layer)
+        #  for each energy
+        qaPlan.beam[bm].CP = [SPOTdata() for _ in range(len(energies))]
+
+        for en, energy in enumerate(energies):
+            #  the data for spots in this energy layer
+            spotData = [_ for _ in beamData if _[1] == energy]
+            qaPlan.beam[bm].CP[en].En = energy
+            FWHM = 28.9 - (0.338*energy) + ((2.32e-3)*energy**2) \
+                    - ((7.39e-6)*energy**3) + ((9.04e-9)*energy**4)
+            for sp in spotData:
+                qaPlan.beam[bm].CP[en].sizeX = FWHM
+                qaPlan.beam[bm].CP[en].sizeY = FWHM
+                qaPlan.beam[bm].CP[en].X.append(sp[2])
+                qaPlan.beam[bm].CP[en].Y.append(sp[3])
+                qaPlan.beam[bm].CP[en].sMeterset.append(sp[4])
+
+    return(qaPlan)
+
+
+
+
+
+
+
+
+###  From a list of spots in the simple list format:
   #  gantry angle, energy, x, y, MU
   #  convert to the pre-generated pbtDICOM classes
 def spotConvert(planName=None, data=None, rangeShifter=None):
