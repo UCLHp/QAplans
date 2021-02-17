@@ -38,24 +38,31 @@
 ###  Generate qaType which contains
   #  the spot patter - a single spot (SS), grid of spots (SG),
   #  or a custom pattern defined in a .csv file (CSV)
-def qaPlanType(qaType={}):
+def planType(qaType={}):
 
-    from os import getcwd
+    import os
     from easygui import buttonbox, fileopenbox
 
 
 
     # finding out what type of plan file the user wishes to create
     bxTitle = 'QA plan file stucture'
+    # bxMsg = 'Select the QA file type you wish to create\n\n\
+    #               SS-SE:  Single Spot at a Single Energy\n\
+    #               SS-ME:  Single Spot at Multiple Energies\n\
+    #              SS-MGA:  Single Spot at Multiple Gantry Angles\n\
+    #               SG-SE:  Spot Grid (dose plane) at a Single Energy\n\
+    #               SG-ME:  Spot Grid (dose plane) at Multiple Energies\n\
+    #           SG-ME-MGA:  Spot Grid (dose plane) at Multiple Energies and Multiple Gantry Angles\n\
+    #                 CSV:  Create a plan file from a pre-made .csv file of format:\n\
+    #                       Gantry Angle, Energy, X, Y, MU'
     bxMsg = 'Select the QA file type you wish to create\n\n\
-                  SS-SE:  Single Spot at a Single Energy\n\
-                  SS-ME:  Single Spot at Multiple Energies\n\
-                 SS-MGA:  Single Spot at Multiple Gantry Angles\n\
                   SG-SE:  Spot Grid (dose plane) at a Single Energy\n\
                   SG-ME:  Spot Grid (dose plane) at Multiple Energies\n\
-              SG-ME-MGA:  Spot Grid (dose plane) at Multiple Energies and Multiple Gantry Angles\n\
-                    CSV:  Create a plan file from a pre-made .csv file of spot positions, energies, and MUs'
-    bxOpts = ['SS-SE', 'SS-ME', 'SS-MGA', 'SG-SE', 'SG-ME', 'SG-ME-MGA', 'CSV']
+                    CSV:  Create a plan file from a pre-made .csv file of format:\n\
+                          Gantry Angle, Energy, X, Y, MU'
+    # bxOpts = ['SS-SE', 'SS-ME', 'SS-MGA', 'SG-SE', 'SG-ME', 'SG-ME-MGA', 'CSV']
+    bxOpts = ['SG-SE', 'SG-ME', 'CSV']
     qaType['type'] = buttonbox( title=bxTitle, msg=bxMsg, \
                                 choices=bxOpts, cancel_choice=None )
     if qaType['type'] == None:
@@ -64,21 +71,10 @@ def qaPlanType(qaType={}):
     if qaType['type'] == 'CSV':
         #  request the CSV file
         qaType['file'] = fileopenbox( title='select .csv spot file', msg=None,
-                                        default=getcwd(), filetypes='*.csv' )
-
-
-
-    # is the output intended for the TPS or MC, or both
-    bxTitle = 'TPS or MC'
-    bxMsg = 'Do you need a QA file for the TPS, Monte-Carlo, or both'
-    bxOpts = ['TPS', 'MC', 'both']
-    qaType['output'] = buttonbox( title=bxTitle, msg=bxMsg, \
-                                    choices=bxOpts, default_choice='TPS', \
-                                    cancel_choice=None )
-    if qaType['output'] == None:
-        print('Output type must be defined');  raise SystemExit()
-
-
+                                        default=os.path.dirname(os.path.realpath(__file__)), \
+                                        filetypes='*.csv' )
+    else:
+        qaType['file'] = os.path.dirname(os.path.realpath(__file__))
 
     return(qaType)
 
@@ -89,9 +85,9 @@ def qaPlanType(qaType={}):
 
 
 ###  Using the values from qaPlanType, obtain all the necessary spot details
-def qaSpotParameters(qaType=None):
+def spotParameters(qaType=None):
 
-    from os import getcwd
+    import os
     import re
     import numpy
     from easygui import buttonbox, multenterbox, fileopenbox
@@ -113,8 +109,10 @@ def qaSpotParameters(qaType=None):
     if qaType['type'] == 'CSV':
         if qaType['file'] == None:
             #  request the CSV file
-            file = fileopenbox( title='select .csv spot file', msg=None,
-                                default=getcwd(), filetypes='*.csv' )
+            qaType['file'] = fileopenbox( title='select .csv spot file', msg=None,
+                                default=os.getcwd(), filetypes='*.csv' )
+
+        planName = os.path.splitext(os.path.split(qaType['file'])[1])[0]
 
         head = []
         data = []
@@ -124,6 +122,8 @@ def qaSpotParameters(qaType=None):
                     head.append(line.strip())
                     if 'DOSE RATE' in line:
                         doseRate = float(line.split(',')[1].strip())
+                    if 'RS' in line:
+                        rangeShifter = float(line.split(',')[1].strip())
                 else:
                     data.append([float(_) for _ in line.strip().split(',')])
 
@@ -144,9 +144,9 @@ def qaSpotParameters(qaType=None):
             bxOpts = ['Plan Name', 'Gantry Angle', 'Spot Energy', 'tMU per spot']
             bxVals = ['SS-SE', 270, 70, 50]
 
-            planName, gAngle, Emax, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
-            gAngle, Emax, sMU = ([float(gAngle)], float(Emax), float(sMU))
-            Emin, delE, Nx, Ny, Sep = (Emax+1.0, 10.0, 1, 1, 0.0)
+            planName, gAngle, Emin, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
+            gAngle, Emin, sMU = ([float(gAngle)], float(Emin), float(sMU))
+            Emax, delE, Nx, Ny, Sep = (Emin+1.0, 10.0, 1, 1, 0.0)
 
 
         elif qaType['type'] == 'SS-ME':
@@ -164,9 +164,9 @@ def qaSpotParameters(qaType=None):
             bxOpts = ['Plan Name', 'Gantry Angle', 'Spot Energy', 'tMU per spot']
             bxVals = ['SS-MGA', '0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330', 70, 50]
 
-            planName, gAngle, Emax, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
-            gAngle, Emax, sMU = ([float(_) for _ in gAngle.split(',')], float(Emax), float(sMU))  # gAngle = [float(_) for _ in gAngle.split(',')]
-            Emin, delE, Nx, Ny, Sep = (Emax+1.0, 10.0, 1, 1, 0.0)
+            planName, gAngle, Emin, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
+            gAngle, Emin, sMU = ([float(_) for _ in gAngle.split(',')], float(Emin), float(sMU))  # gAngle = [float(_) for _ in gAngle.split(',')]
+            Emax, delE, Nx, Ny, Sep = (Emin+1.0, 10.0, 1, 1, 0.0)
 
 
         elif qaType['type'] == 'SG-SE':
@@ -174,9 +174,9 @@ def qaSpotParameters(qaType=None):
             bxOpts = ['Plan Name', 'Gantry Angle', 'Layer Energy', 'Nspot X', 'Nspot Y', 'Spot spacing (mm)', 'tMU per spot']
             bxVals = ['SG-SE', 270, 240, 5, 5, 7, 50]
 
-            planName, gAngle, Emax, Nx, Ny, Sep, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
-            gAngle, Emax, Nx, Ny, Sep, sMU = ([float(gAngle)], float(Emax), int(Nx), int(Ny), float(Sep), float(sMU))
-            Emin, delE = (Emax+1.0, 10.0)
+            planName, gAngle, Emin, Nx, Ny, Sep, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
+            gAngle, Emin, Nx, Ny, Sep, sMU = ([float(gAngle)], float(Emin), int(Nx), int(Ny), float(Sep), float(sMU))
+            Emax, delE = (Emin+1.0, 10.0)
 
 
         elif qaType['type'] == 'SG-ME':
@@ -210,6 +210,10 @@ def qaSpotParameters(qaType=None):
 
 
 
+    # print(data)
+
+
+
     # if doseRate not already defined set to minimum MU
     try:
         doseRate
@@ -217,8 +221,27 @@ def qaSpotParameters(qaType=None):
         doseRate = min([_[4] for _ in data])
 
 
+    try:
+        rangeShifter
+    except NameError:
+        bxTitle = 'Range Shifter'
+        bxMsg = 'Choose a Range Shifter if desired'
+        bxOpts = ['None', '2 cm', '3 cm', '5 cm']
+        rs = buttonbox( title=bxTitle, msg=bxMsg, choices=bxOpts, \
+                        cancel_choice=None )
+        if rs == 'None':  rangeShifter = None
+        if rs == '2 cm':  rangeShifter = 2.0
+        if rs == '3 cm':  rangeShifter = 3.0
+        if rs == '5 cm':  rangeShifter = 5.0
 
-    return(data, doseRate)
+    if rangeShifter is not None:
+        planName = planName + '_RS' + str(int(rangeShifter))
+
+
+
+
+
+    return(planName, data, doseRate, rangeShifter)
 
 
 
@@ -232,4 +255,3 @@ if __name__ == '__main__':
     print(x)
 
     y = qaSpotParameters()
-    print(y)

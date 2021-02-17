@@ -19,7 +19,7 @@
 
 
 
-from os import getcwd, path as osPath
+import os
 from easygui import fileopenbox, filesavebox
 import datetime
 from random import randint
@@ -43,26 +43,26 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
 
     # obtain the template plan, and read in the data
     ''' see if any way to store this within the plan but still give option '''
-    if iFile == None:
-        iFile = fileopenbox( title='Template file',
-                             msg='Select the template DICOM file\n \
-                                  Results will be better if the template is \
-                                  exported from the patient to which the \
-                                  created plan will be added',
-                             default=getcwd(), filetypes='*.dcm' )
-        iPath, iName = osPath.split(iFile)[0], osPath.split(iFile)[1]
+    # iFile = fileopenbox( title='Template file',
+    #                      msg='Select the template DICOM file\n \
+    #                           Results will be better if the template is \
+    #                           exported from the patient to which the \
+    #                           created plan will be added',
+    #                      default=os.path.join(os.path.dirname( os.path.realpath(__file__)), \
+    #                                                             'data', 'RN.template-wRS.dcm' ), \
+    #                      filetypes='*.dcm' )
+    iFile = os.path.join(os.path.dirname( os.path.realpath(__file__)), 'data', 'RN.template-wRS.dcm' )
+    iPath, iName = os.path.split(iFile)[0], os.path.split(iFile)[1]
 
 
 
 
     # obtain the output file location
-    if oFile == None:
-        oFile = filesavebox( title='Output file',
-                             default=osPath.join(osPath.split(iFile)[0], 'RN.'\
-                                     + str(spotData.pName) + '.dcm'),
-                             filetypes='*.dcm' )
-        oPath, oName = osPath.split(oFile)[0], osPath.split(oFile)[1]
-
+    oFile = filesavebox( title='Output file',
+                         default=os.path.join( os.path.dirname(oFile), 'RN.'\
+                                                + str(spotData.pName) + '.dcm' ), \
+                         filetypes='*.dcm' )
+    oPath, oName = os.path.split(oFile)[0], os.path.split(oFile)[1]
 
 
 
@@ -92,6 +92,10 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
 
 
 
+    '''  Fraction Group Sequence '''
+
+
+
     #  ReferencedBeamNumber and BeamMeterset
     #  Need one for each beam in plan, so multiply if separating energy layers
     fullDCMdata.FractionGroupSequence[0].NumberOfBeams = spotData.numBeams
@@ -113,6 +117,10 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
 
 
 
+    '''  Patient Setup Sequence '''
+
+
+
     # need a PatientSetupSequence for each beam
     fullDCMdata.PatientSetupSequence = \
       [ deepcopy(fullDCMdata.PatientSetupSequence[0]) \
@@ -120,6 +128,10 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
 
     for _ in range(spotData.numBeams):
         fullDCMdata.PatientSetupSequence[_].PatientSetupNumber = _+1
+
+
+
+    '''  Ion Beam Sequence '''
 
 
 
@@ -153,7 +165,19 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
         '''
         # Here is where the Range Shifter data needs to be added if included - DO LATER
         '''
-
+        if spotData.beam[b].rs != None:
+            fullDCMdata.IonBeamSequence[b].NumberOfRangeShifters = 1
+            fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterNumber = 1
+            if spotData.beam[b].rs == 2:
+                fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterID = 'RS = 2cm'
+            if spotData.beam[b].rs == 3:
+                fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterID = 'RS = 3cm'
+            if spotData.beam[b].rs == 5:
+                fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterID = 'RS = 5cm'
+            fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterType = 'BINARY'
+        else:
+            fullDCMdata.IonBeamSequence[b].NumberOfRangeShifters = 0
+            del fullDCMdata.IonBeamSequence[b].RangeShifterSequence
 
 
         # Creating Control Point entries
@@ -169,18 +193,30 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
 
         # filling in the Control Point information
         # first control point in each beam contains additional data such as gantry angle etc.
-        fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].GantryAngle\
+        fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].GantryAngle \
           = spotData.beam[b].gAngle
+
+        '''  more range shifter settings will have to go here'''
+        fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].SnoutPosition \
+          = 421.0
+        if spotData.beam[b].rs != None:
+            fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].RangeShifterSetting = 'IN'
+            fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].IsocenterToRangeShifterDistance \
+              = fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].SnoutPosition + 4.9
+            if spotData.beam[b].rs == 2:
+                fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].RangeShifterWaterEquivalentThickness = 23.0
+            if spotData.beam[b].rs == 3:
+                fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].RangeShifterWaterEquivalentThickness = 34.0
+            if spotData.beam[b].rs == 5:
+                fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].RangeShifterWaterEquivalentThickness = 57.0
+            fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].ReferencedRangeShifterNumber = '1'
+        else:
+            del fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence
+
+
 
         fullDCMdata.IonBeamSequence[b].IonControlPointSequence[-1].CumulativeMetersetWeight = 0
         fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].CumulativeMetersetWeight = 0
-
-
-
-        '''  more range shifter settings will have to go here'''
-        # fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].SnoutPosition
-        # more range shifter settings
-        # fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].Range Shifter Settings Sequence
 
 
 
@@ -229,7 +265,7 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
             fullDCMdata.IonBeamSequence[b].IonControlPointSequence[c].CumulativeMetersetWeight \
               = fullDCMdata.IonBeamSequence[b].IonControlPointSequence[c-1].CumulativeMetersetWeight
             fullDCMdata.IonBeamSequence[b].IonControlPointSequence[c+1].CumulativeMetersetWeight \
-              = fullDCMdata.IonBeamSequence[b].IonControlPointSequence[c+1].CumulativeMetersetWeight \
+              = fullDCMdata.IonBeamSequence[b].IonControlPointSequence[c].CumulativeMetersetWeight \
                 + sum(spotData.beam[b].CP[c//2].sMeterset)
 
             # and as a ratio of the total plane meterset
