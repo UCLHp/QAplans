@@ -151,8 +151,7 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
 
         fullDCMdata.IonBeamSequence[b].BeamNumber = b+1
 
-        fullDCMdata.IonBeamSequence[b].BeamName = spotData.beam[b].bName \
-                                                  + '-' + str(b+1)
+        fullDCMdata.IonBeamSequence[b].BeamName = spotData.beam[b].bName
 
         fullDCMdata.IonBeamSequence[b].FinalCumulativeMetersetWeight = \
           sum( [sum(c.sMeterset) for c in spotData.beam[b].CP] )
