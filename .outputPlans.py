@@ -45,18 +45,18 @@ if __name__ == '__main__':
 
 
     # planName, data, doseRate, rangeShifter = spotParameters(type)
-    planName = 'Output-G0-E70-245-10x10-10MU'
-    # planName = 'Output-G0-E70-245-10x10-50MU'
+    # planName = 'Output-G0-E70-245-10x10-10MU'
+    planName = 'Output-G0-E190-245-10x10-50MU'
     # planName = 'IDD-G0-E70-10x10-50MU'
     # planName = 'IDD-G0-E70-20x20-50MU'
     # data =
     rangeShifter = None
 
     gantry = [0.0]
-    energy = [float(_) for _ in range(70, 245+1, 5)]
+    energy = [float(_) for _ in range(190, 245+1, 5)]
     spots = 41
     space = 2.5
-    MU = 10
+    MU = 50
 
     doseRate = MU
 
@@ -74,4 +74,7 @@ if __name__ == '__main__':
 
 
 
-    overwriteDICOM(spotData=dcmData, iFile=None, oFile=type['file'])
+    #  passing the template file to the write programme
+    iFile = os.path.join( os.path.dirname( os.path.realpath(__file__) ), \
+                            'data', 'RN.template-wRS.dcm' )
+    overwriteDICOM(spotData=dcmData, iFile=iFile, oFile=type['file'])
