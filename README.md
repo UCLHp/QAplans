@@ -2,34 +2,35 @@
 
 This package will create QA plans to use during commissioning.
 
-Plans will be based on the test patients
+Plans will be based on the template:
 
-- zzz_PBT_comm_EnergyLayers
-- zzz_PBT_comm_Isocentre
+- `data/RN.template-wRS.dcm`
 
 _BADGES_ - can add badges of metadata such as version info ([shields.io](https://shields.io/) gives many good options).
 
 ## Components
 
-**pbtDICOM.py** - contains the trimmed down DICOM class
+**_planGenerator.py** - the primary programme - calls the other modules to build a custom plan.
+
+**.outputPlans.py** - specilised version of `_planGenerator.py` that will generate energy layer plans for doing output measurements.
+
+**planDefine.py** - collects the information used to define the list of spots to be generated.
+
+- **_planType_** - gets the user to define the type of plan to create
+- **_spotParameters_** - uses input from qaPlanType to request the required data from the user to create the plan, then generates the spots
+
+**compactDICOM.py** - takes a list input data and converts it to the trimmed down DICOM class contained in pbtDICOM.py
 
 - **_PLANdata_** - plan name, number of beams, and a list of beams
 - **_BEAMdata_** - beam name, type, gantry angle, couch angle, Meterset unit, number of control-points (each CP is an energy layer)
 - **_SPOTdata_** - energy, x and y position, x and y spot size, spot meterset
-
-**qaPlanDefine.py** - collects the information used to define the list of spots to be generated.
-
-- **_qaPlanType_** - gets the user to define the type of plan to create
-- **_qaSpotParameters_** - uses input from qaPlanType to request the required data from the user to create the plan, then generates the spots
-
-**convert2compactDICOM.py** - takes a list input data and converts it to the trimmed down DICOM class contained in pbtDICOM.py
-
-- **_qaSpotConvert_** - does this task
+- **_spotConvert_** - takes the input data list and populates the above classes
+- **_spotConvert_new_** - an adaption of the above used in `.outputPlans`, will make plans with multiple beams based on a more complex structure of data list, will migrate to this version in future releases
 
 **qaPlanPrepare.py** - checks spot list and make deliverable, write out to an appropriate DICOM file.
 
-- **_qaSpotArrange_** - check the supplied spots are within the deliverable range, order the gantry angles, energy layers, and spot scanning for delivery. Also setup spots to control dose rate.
-- **_qaSpotPrepare_** - prepare the spot data for writing out, add intermediary spots at minimum dose rate to allow smooth stepping between energy layers, split beams into individual energy layers if required.
+- **_spotArrange_** - check the supplied spots are within the deliverable range, order the gantry angles, energy layers, and spot scanning for delivery. Also setup spots to control dose rate.
+- **_spotPrepare_** - prepare the spot data for writing out, add intermediary spots at minimum dose rate to allow smooth stepping between energy layers, split beams into individual energy layers if required.
 
 **writeDICOM.py** - takes data in the compact DICOM class defined in pbtDICOM and writes it over a template `.dcm` file
 
@@ -76,17 +77,23 @@ There are template files stored in the `/data` folder associated with this repo 
 
 Included tests, how to use them, what results to expect
 
+Some template DICOM files are indcluded in the folder `data/` from which you can build your plans. There is also a `test.csv` file that can be used to demonstrate how to create a `.csv` file that can be read by the programme for ultimate control of spot placement.
+
 ## Usage
 
 The primary package is `_qaPlanGenerator.py`
 
-This will call the other modules contained within the folder.
+This will allow the generation of plans either from a custom `.csv` file or define a set of spot grids.
 
-Some template DICOM files are indcluded in the folder `data/` from which you can build your plans. There is also a `test.csv` file that can be used to demonstrate how to create a `.csv` file that can be read by the programme for ultimate control of spot placement.
+There is a secondary package `.outputPlans.py`
+
+This is designed specifically for producing output files for dose calibration. May be useful to operate in conjunction with the package `changePlan/multiplyBeams.py` if need repeats of each beam.
 
 ## Limitations / Known Bugs
 
-The UI needs an overhaul that I plan to do ASAP.
+The UI needs an overhaul that I plan to do when I can find some time.
+
+I intend to overhaul the method of data input to add more flexibility and the ability to create multiple beams within a plan at the same gantry angle.
 
 ## Contribute
 
@@ -104,26 +111,18 @@ Full license text contained within the file LICENCE.
 ### (C) License for all programmes
 
 ```
-
-### Copyright (C) 2020: Andrew J. Gosling
+### Copyright (C) 2021: Andrew J. Gosling
 
 # This program is free software: you can redistribute it and/or modify
-
 # it under the terms of the GNU General Public License as published by
-
 # the Free Software Foundation, either version 3 of the License, or
-
 # (at your option) any later version.
 
 # This program is distributed in the hope that it will be useful,
-
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 ```
