@@ -102,9 +102,10 @@ def spotParameters(qaType=None):
 
 
     #  setup for custom .CSV file input
-    #  input file should have a single line per spot containing:
-    #  header line starting with the '#' character
-    #   - contain custom info such as DOSE RATE values ie:
+    #  input file should have a single line per spot
+    #  each desired beam should be started with header lines starting with the '#' character
+    #  within a beam are lines containing:
+    #   - custom info such as DOSE RATE values within the header lines ie:
     #     # DOSE RATE, 20
     #  gantry angle, energy, X, Y, MU
     if qaType['type'] == 'CSV':

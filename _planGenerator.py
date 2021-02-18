@@ -44,4 +44,7 @@ if __name__ == '__main__':
 
     dcmData, doseRate = spotArrange(data=dcmData, doseRate=doseRate)
 
+    #  passing the template file to the write programme
+    iFile = os.path.join( os.path.dirname( os.path.realpath(__file__) ), \
+                            'data', 'RN.template-wRS.dcm' )
     overwriteDICOM(spotData=dcmData, iFile=None, oFile=type['file'])
