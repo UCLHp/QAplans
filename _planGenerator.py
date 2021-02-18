@@ -23,6 +23,8 @@
   #  Produce custom plans for commissioning and QA
   #  This effectively just calls a range of modules included alongside this file
 
+import os
+
 from planDefine import planType, spotParameters
 from compactDICOM import spotConvert
 from planPrepare import spotArrange
