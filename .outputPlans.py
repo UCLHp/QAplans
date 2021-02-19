@@ -45,15 +45,17 @@ if __name__ == '__main__':
 
 
     # planName, data, doseRate, rangeShifter = spotParameters(type)
-    # planName = 'Output-G0-E70-245-10x10-10MU'
-    planName = 'Output-G0-E190-245-10x10-50MU'
+    planName = 'Output-G0-E70-245-20x20-50MU'
+    # planName = 'Output-G0-E70-125-10x10-50MU'
+    # planName = 'Output-G0-E130-185-10x10-50MU'
+    # planName = 'Output-G0-E190-245-10x10-50MU'
     # planName = 'IDD-G0-E70-10x10-50MU'
     # planName = 'IDD-G0-E70-20x20-50MU'
     # data =
     rangeShifter = None
 
     gantry = [0.0]
-    energy = [float(_) for _ in range(190, 245+1, 5)]
+    energy = [float(_) for _ in range(70, 245+1, 5)]
     spots = 41
     space = 2.5
     MU = 50
@@ -66,9 +68,14 @@ if __name__ == '__main__':
         for e, en in enumerate(energy):
             for x in range(spots):
                 for y in range(spots):
-                    data[e].append([ ga, en, (x-((spots-1)/2))*space, (y-((spots-1)/2))*space, MU ])
+                    if x % 2:  #  if x is odd as any value > 0 is True
+                        data[e].append([ ga, en, (x-((spots-1)/2))*space, (y-((spots-1)/2))*space, MU ])
+                    else:
+                        data[e].append([ ga, en, (x-((spots-1)/2))*space, (((spots-1)/2)-y)*space, MU ])
+                    #  trying to get scanning in Y to be back and forth
 
 
+    
 
     dcmData = spotConvert_new(planName=planName, data=data, rangeShifter=rangeShifter)
 
