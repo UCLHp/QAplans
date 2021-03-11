@@ -238,6 +238,8 @@ def spotParameters(qaType=None):
 
     if rangeShifter is not None:
         planName = planName + '_RS' + str(int(rangeShifter))
+    else:
+        planName = planName + '_RS0'
 
 
 
