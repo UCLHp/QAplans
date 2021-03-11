@@ -19,12 +19,11 @@
 
 
 
-###  Obtain the input for creating custom QA plans
-  #  To be determined for this
-  #   - QA file type (single spot, energy plane, SOBP)
-  #   - CSV input
-  #   - Single angle or range of angles
-  #   - Cubic or cylindrical phantom
+import os
+import re
+
+import numpy
+from easygui import buttonbox, fileopenbox, multenterbox
 
 
 
@@ -34,91 +33,147 @@
 
 
 
+def plan_type(plan_param={}):
+    """  Basic parameters for the plan
 
-###  Generate qaType which contains
-  #  the spot patter - a single spot (SS), grid of spots (SG),
-  #  or a custom pattern defined in a .csv file (CSV)
-def planType(qaType={}):
-
-    import os
-    from easygui import buttonbox, fileopenbox
-
+    Includes:
+     - Format of the beams: single spots, grids, or from .csv
+     - File path for input data, can be multiple files
+    """
 
 
     # finding out what type of plan file the user wishes to create
-    bxTitle = 'QA plan file stucture'
-    # bxMsg = 'Select the QA file type you wish to create\n\n\
-    #               SS-SE:  Single Spot at a Single Energy\n\
-    #               SS-ME:  Single Spot at Multiple Energies\n\
-    #              SS-MGA:  Single Spot at Multiple Gantry Angles\n\
-    #               SG-SE:  Spot Grid (dose plane) at a Single Energy\n\
-    #               SG-ME:  Spot Grid (dose plane) at Multiple Energies\n\
-    #           SG-ME-MGA:  Spot Grid (dose plane) at Multiple Energies and Multiple Gantry Angles\n\
-    #                 CSV:  Create a plan file from a pre-made .csv file of format:\n\
-    #                       Gantry Angle, Energy, X, Y, MU'
-    bxMsg = 'Select the QA file type you wish to create\n\n\
+    bx_title = 'QA plan file stucture'
+    bx_msg = 'Select the QA file type you wish to create\n\n\
                   SG-SE:  Spot Grid (dose plane) at a Single Energy\n\
                   SG-ME:  Spot Grid (dose plane) at Multiple Energies\n\
                     CSV:  Create a plan file from a pre-made .csv file of format:\n\
                           Gantry Angle, Energy, X, Y, MU'
-    # bxOpts = ['SS-SE', 'SS-ME', 'SS-MGA', 'SG-SE', 'SG-ME', 'SG-ME-MGA', 'CSV']
-    bxOpts = ['CSV', 'SG-SE', 'SG-ME']
-    qaType['type'] = buttonbox( title=bxTitle, msg=bxMsg, \
-                                choices=bxOpts, default_choice=bxOpts[0], \
-                                cancel_choice=None )
-    if qaType['type'] == None:
+    bx_opts = ['CSV', 'SG-SE', 'SG-ME']
+
+
+    plan_param['type'] = buttonbox( title=bx_title, msg=bx_msg, \
+                                    choices=bx_opts, default_choice=bx_opts[0], \
+                                    cancel_choice=None )
+    if plan_param['type'] == None:
         print('Requires a defined spot pattern');  raise SystemExit()
 
-    if qaType['type'] == 'CSV':
+
+    if plan_param['type'] == 'CSV':
         #  request the CSV file
-        qaType['file'] = fileopenbox( title='select .csv spot file', msg=None,
-                                        default=os.path.dirname(os.path.realpath(__file__)), \
-                                        filetypes='*.csv' )
+        plan_param['file'] = fileopenbox( title='select .csv spot file', \
+                                            msg=None, filetypes='*.csv', \
+                                            multiple=True )
     else:
-        qaType['file'] = os.path.dirname(os.path.realpath(__file__))
-
-    return(qaType)
-
-
+        #  assign this files directory as the working directory
+        #  may be of use when in executable format
+        plan_param['file'] = os.path.dirname(os.path.realpath(__file__))
 
 
-
-
-
-###  Using the values from qaPlanType, obtain all the necessary spot details
-def spotParameters(qaType=None):
-
-    import os
-    import re
-    import numpy
-    from easygui import buttonbox, multenterbox, fileopenbox
+    return(plan_param)
 
 
 
-    # if the qaPlanType code has not been run and passed then call
-    if not qaType:
-        qaType=qaPlanType()
 
 
 
-    #  setup for custom .CSV file input
-    #  input file should have a single line per spot
-    #  each desired beam should be started with header lines starting with the '#' character
-    #  within a beam are lines containing:
-    #   - custom info such as DOSE RATE values within the header lines ie:
-    #     # DOSE RATE, 20
-    #  gantry angle, energy, X, Y, MU
-    if qaType['type'] == 'CSV':
-        if qaType['file'] == None:
-            #  request the CSV file
-            qaType['file'] = fileopenbox( title='select .csv spot file', msg=None,
-                                default=os.getcwd(), filetypes='*.csv' )
 
-        planName = os.path.splitext(os.path.split(qaType['file'])[1])[0]
+def parse_csv_plan_file(ifile=None):
+    """  Read in and convert a .csv file to spot parameters
+
+    Name of the plan is taken directly from the filename
+    Each block of contiguous lines is assumed to be a single beam
+    Start of each block can contain header follosing header types:
+      BEAM NAME, GANTRY ANGLE, RANGE SHIFTER, DOSE RATE
+    ie:
+      #, BEAM NAME, I am a beam
+      #, GANTRY ANGLE, 270
+      #, RANGE SHIFTER, 3
+      #, DOSE RATE, 75
+    After header, each line is a single spot for that beam
+    Format for each line is:
+      E, X, Y, MU
+    where:
+      E - spot energy
+      X and Y - spot position in mm from isocentre
+      MU - Meterset for this spot
+    """
+
+    if not ifile:
+        fileopenbox( title='select .csv spot file', msg=None, \
+                        filetypes='*.csv', multiple=True )
+
+    plan_name = []
+    spot_data = []
+    for file in ifile:
+
+
+
+        ###  Think I might start using a class here as it seems more sensible
+
+
+
+
+
+        plan_name.append( os.path.splitext( os.path.split(file)[1] )[0] )
 
         head = []
         data = []
-        with open(qaType['file']) as inFile:
+        with open(plan_param['file']) as inFile:
+            for line in inFile:
+                if line.startswith('#'):
+                    head.append(line.strip())
+                    if 'DOSE RATE' in line:
+                        doseRate = float(line.split(',')[1].strip())
+                    if 'RS' in line:
+                        rangeShifter = float(line.split(',')[1].strip())
+                else:
+                    data.append([float(_) for _ in line.strip().split(',')])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def spot_parameters(plan_param=None):
+    """  Generate a data structure of spots to create a plan
+
+    Data structure is a list of beams
+     - each beam is its own list
+        - within each beam is a list for each spot position
+
+    [   [ ["Beam Name", etc.], [G, E, X, Y, MU], [], [], ..... ],
+        [ beam 2 ],   [],   .....   ]
+    """
+
+    # if the plan_type code has not been run and passed then call
+    if not plan_param:
+        plan_param=plan_type()
+
+
+
+    #
+    if plan_param['type'] == 'CSV':
+        if plan_param['file'] == None:
+            #  request the CSV file
+            plan_param['file'] = fileopenbox( title='select .csv spot file', msg=None,
+                                default=os.getcwd(), filetypes='*.csv' )
+
+        planName = os.path.splitext(os.path.split(plan_param['file'])[1])[0]
+
+        head = []
+        data = []
+        with open(plan_param['file']) as inFile:
             for line in inFile:
                 if line.startswith('#'):
                     head.append(line.strip())
@@ -141,7 +196,7 @@ def spotParameters(qaType=None):
             May make it easier for calling at a later time '''
         ''' Also need to add functionality to control dose rate in spots '''
 
-        if qaType['type'] == 'SS-SE':
+        if plan_param['type'] == 'SS-SE':
             bxMsg = bxMsg + 'A single spot on the isocentre\n\nEnergy should be given in MeV\n\ntMU is the technical MU used by Varian'
             bxOpts = ['Plan Name', 'Gantry Angle', 'Spot Energy', 'tMU per spot']
             bxVals = ['SS-SE', 270, 70, 50]
@@ -151,7 +206,7 @@ def spotParameters(qaType=None):
             Emax, delE, Nx, Ny, Sep = (Emin+1.0, 10.0, 1, 1, 0.0)
 
 
-        elif qaType['type'] == 'SS-ME':
+        elif plan_param['type'] == 'SS-ME':
             bxMsg = bxMsg + 'A series of spots on the isocentre\n\nAll energies should be given in MeV\nEnergy spacing greater than ~2 MeV will require the placement of out of field spots to allow the ESS to adjust\n\ntMU is the technical MU used by Varian'
             bxOpts = ['Plan Name', 'Gantry Angle', 'Lowest Energy', 'Highest Energy', 'Energy spacing', 'tMU per spot']
             bxVals = ['SS-ME', 270, 70, 240, 5, 50]
@@ -161,7 +216,7 @@ def spotParameters(qaType=None):
             Nx, Ny, Sep = (1, 1, 0.0)
 
 
-        elif qaType['type'] == 'SS-MGA':
+        elif plan_param['type'] == 'SS-MGA':
             bxMsg = bxMsg + 'A single spot on the isocentre, repeated at multiple gantry angles\n\nEnergy should be given in MeV\n\nGantry angles should be a comma separated list\n\ntMU is the technical MU used by Varian'
             bxOpts = ['Plan Name', 'Gantry Angle', 'Spot Energy', 'tMU per spot']
             bxVals = ['SS-MGA', '0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330', 70, 50]
@@ -171,7 +226,7 @@ def spotParameters(qaType=None):
             Emax, delE, Nx, Ny, Sep = (Emin, 10.0, 1, 1, 0.0)
 
 
-        elif qaType['type'] == 'SG-SE':
+        elif plan_param['type'] == 'SG-SE':
             bxMsg = bxMsg + 'A grid of spots at a single energy\nCan be used to either create a grid or dose plane\n\nEnergy should be given in MeV\nCentral spot on beam-axis\nOdd number of spots required for symmetric fields\n\ntMU is the technical MU used by Varian'
             bxOpts = ['Plan Name', 'Gantry Angle', 'Layer Energy', 'Nspot X', 'Nspot Y', 'Spot spacing (mm)', 'tMU per spot']
             bxVals = ['SG-SE', 270, 240, 5, 5, 7, 50]
@@ -181,7 +236,7 @@ def spotParameters(qaType=None):
             Emax, delE = (Emin, 10.0)
 
 
-        elif qaType['type'] == 'SG-ME':
+        elif plan_param['type'] == 'SG-ME':
             bxMsg = bxMsg + 'A grid of spots at multiple energies\nCan be used to either create a series of grids, dose planes, or a dose cube\n\nEnergy should be given in MeV\nCentral spot on beam-axis\nOdd number of spots required for symmetric fields\n\ntMU is the technical MU used by Varian'
             bxOpts = ['Plan Name', 'Gantry Angle', 'Energies', 'Nspot X', 'Nspot Y', 'Spot spacing (mm)', 'tMU per spot']
             bxVals = ['SG-ME', 0, '70, 120, 150, 180, 230', 41, 41, 2.5, 10]
@@ -190,7 +245,7 @@ def spotParameters(qaType=None):
             gAngle, Ene, Nx, Ny, Sep, sMU = ([float(gAngle)], list(float(_) for _ in Ene.split(',')), int(Nx), int(Ny), float(Sep), float(sMU))
 
 
-        elif qaType['type'] == 'SG-ME-MGA':
+        elif plan_param['type'] == 'SG-ME-MGA':
             bxMsg = bxMsg + 'A grid of spots at multiple energies and multiple gantry angles\nCan be used to either create a series of grids, dose planes, or a dose cube\n\nEnergy should be given in MeV\nCentral spot on beam-axis\nOdd number of spots required for symmetric fields\nGantry angles should be a comma separated list\n\ntMU is the technical MU used by Varian'
             bxOpts = ['Plan Name', 'Gantry Angle', 'Lowest Energy', 'Highest Energy', 'Energy spacing', 'Nspot X', 'Nspot Y', 'Spot spacing (mm)', 'tMU per spot']
             bxVals = ['SG-ME-MGA', '0, 90, 180, 270', 70, 240, 5, 3, 3, 7, 50]
@@ -257,7 +312,26 @@ def spotParameters(qaType=None):
 
 if __name__ == '__main__':
 
-    x = qaPlanType()
+    x = plan_type()
     print(x)
 
     y = qaSpotParameters()
+
+
+
+
+
+
+'''
+# Some older pieces of the code that may be re-instated
+
+
+    bx_msg = 'Select the QA file type you wish to create\n\n\
+                  SS-SE:  Single Spot at a Single Energy\n\
+                  SS-ME:  Single Spot at Multiple Energies\n\
+                 SS-MGA:  Single Spot at Multiple Gantry Angles\n\
+                  SG-SE:  Spot Grid (dose plane) at a Single Energy\n\
+                  SG-ME:  Spot Grid (dose plane) at Multiple Energies\n\
+              SG-ME-MGA:  Spot Grid (dose plane) at Multiple Energies and Multiple Gantry Angles\n\
+                    CSV:  Create a plan file from a pre-made .csv file of format:\n\
+                          Gantry Angle, Energy, X, Y, MU'
