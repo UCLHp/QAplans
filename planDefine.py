@@ -78,6 +78,34 @@ def plan_type(plan_param={}):
 
 
 
+class SpotData:
+    """  Spot data in rawest form before structuring  """
+
+    class Spot:
+        """  Basic options for every spot  """
+        def __init__(self, [e, x, y, m]):
+            self.en = float(e)
+            self.x = float(x)
+            self.y = float(y)
+            self.mu = int(m)
+
+    def __init__(self, n, a, r, data):
+        self.name = ""
+        self.angle = 0.0
+        self.rs = 0
+        self.spots = [Spot() for _ in range(len(data))]
+
+        for d,dt in enumerate(data):
+            self.spots[d] = Spot(dt)
+
+
+
+
+
+
+
+
+
 def parse_csv_plan_file(ifile=None):
     """  Read in and convert a .csv file to spot parameters
 
