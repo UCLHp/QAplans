@@ -78,16 +78,17 @@ def plan_type(plan_param={}):
 
 
 
+class Spot:
+    """  Basic options for every spot  """
+    def __init__(self, [e, x, y, m]):
+        self.en = float(e)
+        self.x = float(x)
+        self.y = float(y)
+        self.mu = int(m)
+
+
 class SpotData:
     """  Spot data in rawest form before structuring  """
-
-    class Spot:
-        """  Basic options for every spot  """
-        def __init__(self, [e, x, y, m]):
-            self.en = float(e)
-            self.x = float(x)
-            self.y = float(y)
-            self.mu = int(m)
 
     def __init__(self, n, a, r, data):
         self.name = ""
@@ -97,8 +98,6 @@ class SpotData:
 
         for d,dt in enumerate(data):
             self.spots[d] = Spot(dt)
-
-
 
 
 
@@ -131,10 +130,10 @@ def parse_csv_plan_file(ifile=None):
         fileopenbox( title='select .csv spot file', msg=None, \
                         filetypes='*.csv', multiple=True )
 
-    plan_name = []
     spot_data = []
     for file in ifile:
-
+        file_name = os.path.splitext( os.path.split(file)[1] )[0]
+        spot_data.append(SpotData())
 
 
         ###  Think I might start using a class here as it seems more sensible
