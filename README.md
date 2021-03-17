@@ -12,8 +12,6 @@ _BADGES_ - can add badges of metadata such as version info ([shields.io](https:/
 
 **_planGenerator.py** - the primary programme - calls the other modules to build a custom plan.
 
-**.outputPlans.py** - specilised version of `_planGenerator.py` that will generate energy layer plans for doing output measurements.
-
 **planDefine.py** - collects the information used to define the list of spots to be generated.
 
 - **_planType_** - gets the user to define the type of plan to create
@@ -35,6 +33,8 @@ _BADGES_ - can add badges of metadata such as version info ([shields.io](https:/
 **writeDICOM.py** - takes data in the compact DICOM class defined in pbtDICOM and writes it over a template `.dcm` file
 
 - **_overwriteDICOM_** - using a template `.dcm` plan, write out a new plan file
+
+**_multipyBeams.py** - quick script to duplicate beams within an existing plan to be able to repeat delivery without reloading the patient.
 
 ## Installation
 
@@ -85,9 +85,7 @@ The primary package is `_qaPlanGenerator.py`
 
 This will allow the generation of plans either from a custom `.csv` file or define a set of spot grids.
 
-There is a secondary package `.outputPlans.py`
-
-This is designed specifically for producing output files for dose calibration. May be useful to operate in conjunction with the package `changePlan/multiplyBeams.py` if need repeats of each beam.
+There is a sub-package called `_multiplyBeams.py` which will take an existing plan and multiply each beam within the plan by a given amount. Appends `xN` to the plan name where `N` is the number of repeats of each beam. **BEWARE** PTC cannot handle more than 50 or so beams before struggling.
 
 ## Limitations / Known Bugs
 
