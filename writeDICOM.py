@@ -170,11 +170,11 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
             fullDCMdata.IonBeamSequence[b].NumberOfRangeShifters = 1
             fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterNumber = 1
             if spotData.beam[b].rs == 2:
-                fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterID = 'RS = 2cm'
+                fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterID = 'RS=2cm'
             if spotData.beam[b].rs == 3:
-                fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterID = 'RS = 3cm'
+                fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterID = 'RS=3cm'
             if spotData.beam[b].rs == 5:
-                fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterID = 'RS = 5cm'
+                fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterID = 'RS=5cm'
             fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterType = 'BINARY'
         else:
             fullDCMdata.IonBeamSequence[b].NumberOfRangeShifters = 0
