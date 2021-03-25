@@ -215,6 +215,6 @@ if __name__ == '__main__':
     # mev_per_spot = 10
 
     # i_file = 'C:\\Users\\agoslin2\\NHS\\(Canc) Radiotherapy - PBT Physics Team - PBT Physics Team\\IndividualFolders\\AG\\planGeneration\\outputs\\RN.OP_10x10_10MeVs_RS0.dcm'
-    spacing = [5, 1, 10]
+    spacing = [2, 1, 10]
 
     energy_spacer(space=spacing)
