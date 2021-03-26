@@ -168,7 +168,7 @@ def spotParameters(qaType=None):
 
             planName, gAngle, Emin, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
             gAngle, Emin, sMU = ([float(_) for _ in gAngle.split(',')], float(Emin), float(sMU))  # gAngle = [float(_) for _ in gAngle.split(',')]
-            Emax, delE, Nx, Ny, Sep = (Emin+1.0, 10.0, 1, 1, 0.0)
+            Emax, delE, Nx, Ny, Sep = (Emin, 10.0, 1, 1, 0.0)
 
 
         elif qaType['type'] == 'SG-SE':
@@ -178,7 +178,7 @@ def spotParameters(qaType=None):
 
             planName, gAngle, Emin, Nx, Ny, Sep, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
             gAngle, Emin, Nx, Ny, Sep, sMU = ([float(gAngle)], float(Emin), int(Nx), int(Ny), float(Sep), float(sMU))
-            Emax, delE = (Emin+1.0, 10.0)
+            Emax, delE = (Emin, 10.0)
 
 
         elif qaType['type'] == 'SG-ME':
