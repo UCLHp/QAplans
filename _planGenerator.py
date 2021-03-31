@@ -27,7 +27,7 @@ import os
 
 from easygui import buttonbox, fileopenbox
 
-from planDefine import planType, spotParameters
+from planDefine import plan_type, spot_parameters
 from compactDICOM import spotConvert
 from planPrepare import spotArrange
 from writeDICOM import overwriteDICOM
@@ -40,9 +40,9 @@ from writeDICOM import overwriteDICOM
 
 if __name__ == '__main__':
 
-    type = planType()
+    type = plan_type()
 
-    planName, data, doseRate, rangeShifter = spotParameters(type)
+    planName, data, doseRate, rangeShifter = spot_parameters(type)
 
     dcmData = spotConvert(planName=planName, data=data, rangeShifter=rangeShifter)
 
