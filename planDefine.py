@@ -183,11 +183,11 @@ def spotParameters(qaType=None):
 
         elif qaType['type'] == 'SG-ME':
             bxMsg = bxMsg + 'A grid of spots at multiple energies\nCan be used to either create a series of grids, dose planes, or a dose cube\n\nEnergy should be given in MeV\nCentral spot on beam-axis\nOdd number of spots required for symmetric fields\n\ntMU is the technical MU used by Varian'
-            bxOpts = ['Plan Name', 'Gantry Angle', 'Lowest Energy', 'Highest Energy', 'Energy spacing', 'Nspot X', 'Nspot Y', 'Spot spacing (mm)', 'tMU per spot']
-            bxVals = ['SG-ME', 0, 70, 240, 5, 41, 41, 2.5, 10]
+            bxOpts = ['Plan Name', 'Gantry Angle', 'Energies', 'Nspot X', 'Nspot Y', 'Spot spacing (mm)', 'tMU per spot']
+            bxVals = ['SG-ME', 0, '70, 120, 150, 180, 230', 41, 41, 2.5, 10]
 
-            planName, gAngle, Emin, Emax, delE, Nx, Ny, Sep, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
-            gAngle, Emin, Emax, delE, Nx, Ny, Sep, sMU = ([float(gAngle)], float(Emin), float(Emax), float(delE), int(Nx), int(Ny), float(Sep), float(sMU))
+            planName, gAngle, Ene, Nx, Ny, Sep, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
+            gAngle, Ene, Nx, Ny, Sep, sMU = ([float(gAngle)], list(float(_) for _ in Ene.split(',')), int(Nx), int(Ny), float(Sep), float(sMU))
 
 
         elif qaType['type'] == 'SG-ME-MGA':
@@ -203,7 +203,7 @@ def spotParameters(qaType=None):
         data = []
         #  now that have all the necessary values, generate the spots
         for an in gAngle:
-            for en in numpy.arange(Emin, Emax+delE, delE):
+            for en in Ene: # numpy.arange(Emin, Emax+delE, delE):
                 for x in range(Nx):
                     for y in range(Ny):
                         data.append( [an, en, \
