@@ -25,6 +25,8 @@
 
 import os
 
+from easygui import buttonbox, fileopenbox
+
 from planDefine import planType, spotParameters
 from compactDICOM import spotConvert
 from planPrepare import spotArrange
