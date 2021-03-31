@@ -322,8 +322,6 @@ def spot_parameters(plan_param=None):
         planName = planName + '_RS0'
     else:
         planName = planName + '_RS' + str(int(rangeShifter))
-    else:
-        planName = planName + '_RS0'
 
 
 
