@@ -277,7 +277,7 @@ def spot_parameters(plan_param=None):
             bxVals = ['SG-ME', 0, '70, 120, 150, 180, 230', 41, 41, 2.5, 10]
 
             planName, gAngle, Ene, Nx, Ny, Sep, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
-            gAngle, Ene, Nx, Ny, Sep, sMU = list(float(gAngle)), list(float(_) for _ in Ene.split(',')), int(Nx), int(Ny), float(Sep), float(sMU)
+            gAngle, Ene, Nx, Ny, Sep, sMU = (list(float(gAngle)), list(float(_) for _ in Ene.split(',')), int(Nx), int(Ny), float(Sep), float(sMU))
 
 
         elif plan_param['type'] == 'SG-ME-MGA':
