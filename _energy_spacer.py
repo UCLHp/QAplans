@@ -47,7 +47,7 @@ def energy_spacer(ifile=None, ofile=None, space=None):
                              default=os.path.dirname(os.path.realpath(__file__)), \
                              filetypes='*.dcm' )
         print(ifile)
-    ipath, iname = os.path.split(ifile)[0], os.path.split(ifile)[1]
+    # ipath, iname = os.path.split(ifile)[0], os.path.split(ifile)[1]
 
 
     if not space:
@@ -55,7 +55,7 @@ def energy_spacer(ifile=None, ofile=None, space=None):
 
 
     ofile = os.path.join( os.path.splitext(ifile)[0] + '_stp' + str(space[0]) + '.dcm' )
-    opath, oname = os.path.split(ofile)[0], os.path.split(ofile)[1]
+    # opath, oname = os.path.split(ofile)[0], os.path.split(ofile)[1]
 
 
 

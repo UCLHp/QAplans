@@ -77,7 +77,7 @@ def plan_type(plan_param={}):
 
 
 
-
+'''
 class Spot:
     """  Basic options for every spot  """
     def __init__(self, [e, x, y, m]):
@@ -156,7 +156,7 @@ def parse_csv_plan_file(ifile=None):
                         rangeShifter = float(line.split(',')[1].strip())
                 else:
                     data.append([float(_) for _ in line.strip().split(',')])
-
+'''
 
 
 
@@ -263,13 +263,21 @@ def spot_parameters(plan_param=None):
             Emax, delE = (Emin, 10.0)
 
 
+        # elif plan_param['type'] == 'SG-ME':  # v1
+        #     bxMsg = bxMsg + 'A grid of spots at multiple energies\nCan be used to either create a series of grids, dose planes, or a dose cube\n\nEnergy should be given in MeV\nCentral spot on beam-axis\nOdd number of spots required for symmetric fields\n\ntMU is the technical MU used by Varian'
+        #     bxOpts = ['Plan Name', 'Gantry Angle', 'Lowest Energy', 'Highest Energy', 'Energy spacing', 'Nspot X', 'Nspot Y', 'Spot spacing (mm)', 'tMU per spot']
+        #     bxVals = ['SG-ME', 0, 70, 240, 5, 41, 41, 2.5, 10]
+        #
+        #     planName, gAngle, Emin, Emax, delE, Nx, Ny, Sep, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
+        #     gAngle, Emin, Emax, delE, Nx, Ny, Sep, sMU = ([float(gAngle)], float(Emin), float(Emax), float(delE), int(Nx), int(Ny), float(Sep), float(sMU))
+
         elif plan_param['type'] == 'SG-ME':
             bxMsg = bxMsg + 'A grid of spots at multiple energies\nCan be used to either create a series of grids, dose planes, or a dose cube\n\nEnergy should be given in MeV\nCentral spot on beam-axis\nOdd number of spots required for symmetric fields\n\ntMU is the technical MU used by Varian'
             bxOpts = ['Plan Name', 'Gantry Angle', 'Energies', 'Nspot X', 'Nspot Y', 'Spot spacing (mm)', 'tMU per spot']
             bxVals = ['SG-ME', 0, '70, 120, 150, 180, 230', 41, 41, 2.5, 10]
 
             planName, gAngle, Ene, Nx, Ny, Sep, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
-            gAngle, Ene, Nx, Ny, Sep, sMU = ([float(gAngle)], list(float(_) for _ in Ene.split(',')), int(Nx), int(Ny), float(Sep), float(sMU))
+            gAngle, Ene, Nx, Ny, Sep, sMU = list(float(gAngle)), list(float(_) for _ in Ene.split(',')), int(Nx), int(Ny), float(Sep), float(sMU)
 
 
         elif plan_param['type'] == 'SG-ME-MGA':
@@ -340,7 +348,7 @@ if __name__ == '__main__':
     x = plan_type()
     print(x)
 
-    y = qaSpotParameters()
+    y = spot_parameters()
 
 
 
@@ -360,3 +368,4 @@ if __name__ == '__main__':
               SG-ME-MGA:  Spot Grid (dose plane) at Multiple Energies and Multiple Gantry Angles\n\
                     CSV:  Create a plan file from a pre-made .csv file of format:\n\
                           Gantry Angle, Energy, X, Y, MU'
+'''
