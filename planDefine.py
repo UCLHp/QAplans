@@ -22,7 +22,7 @@
 import os
 import re
 
-import numpy
+# import numpy
 from easygui import buttonbox, fileopenbox, multenterbox
 
 
