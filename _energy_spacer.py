@@ -120,7 +120,10 @@ def energy_spacer(ifile=None, ofile=None, space=None):
             new_ion_cp_seq[new_cp].ControlPointIndex = new_cp
             new_ion_cp_seq[new_cp].CumulativeMetersetWeight = new_mtst
 
-            new_mtst = new_mtst +  sum(new_ion_cp_seq[new_cp].ScanSpotMetersetWeights)
+            if len(new_ion_cp_seq[new_cp].ScanSpotMetersetWeights) == 1:
+                new_mtst = new_mtst +  new_ion_cp_seq[new_cp].ScanSpotMetersetWeights
+            else:
+                new_mtst = new_mtst +  sum(new_ion_cp_seq[new_cp].ScanSpotMetersetWeights)
 
             new_ion_cp_seq[new_cp+1].ControlPointIndex = new_cp+1
             new_ion_cp_seq[new_cp+1].CumulativeMetersetWeight = new_mtst
@@ -146,7 +149,8 @@ def energy_spacer(ifile=None, ofile=None, space=None):
                 # new_ion_cp_seq[new_cp].ScanSpotMetersetWeights = [float(space[2]) for _ in range(space[1])]
                 # v2
                 new_ion_cp_seq[new_cp].NumberOfScanSpotPositions = 8
-                new_ion_cp_seq[new_cp].ScanSpotPositionMap = [-50.0,-50.0,-50.0,0.0,-50.0,50.0,0.0,50.0,50.0,50.0,50.0,0.0,50.0,-50.0,0.0,-50.0]
+                # new_ion_cp_seq[new_cp].ScanSpotPositionMap = [-50.0,-50.0,-50.0,0.0,-50.0,50.0,0.0,50.0,50.0,50.0,50.0,0.0,50.0,-50.0,0.0,-50.0]
+                new_ion_cp_seq[new_cp].ScanSpotPositionMap = [-100.0,-100.0,-100.0,0.0,-100.0,100.0,0.0,100.0,100.0,100.0,100.0,0.0,100.0,-100.0,0.0,-100.0]
                 new_ion_cp_seq[new_cp].ScanSpotMetersetWeights = [10.0,10.0,10.0,10.0,10.0,10.0,10.0,10.0]
                 new_ion_cp_seq[new_cp].ScanningSpotSize = [28.9 - (0.338*en) + ((2.32e-3)*en**2) - ((7.39e-6)*en**3) + ((9.04e-9)*en**4), 28.9 - (0.338*en) + ((2.32e-3)*en**2) - ((7.39e-6)*en**3) + ((9.04e-9)*en**4)]
 
@@ -161,7 +165,8 @@ def energy_spacer(ifile=None, ofile=None, space=None):
                 # new_ion_cp_seq[new_cp+1].ScanSpotMetersetWeights = [0.0 for _ in range(space[1])]
                 # v2
                 new_ion_cp_seq[new_cp+1].NumberOfScanSpotPositions = 8
-                new_ion_cp_seq[new_cp+1].ScanSpotPositionMap = [-50.0,-50.0,-50.0,0.0,-50.0,50.0,0.0,50.0,50.0,50.0,50.0,0.0,50.0,-50.0,0.0,-50.0]
+                # new_ion_cp_seq[new_cp+1].ScanSpotPositionMap = [-50.0,-50.0,-50.0,0.0,-50.0,50.0,0.0,50.0,50.0,50.0,50.0,0.0,50.0,-50.0,0.0,-50.0]
+                new_ion_cp_seq[new_cp+1].ScanSpotPositionMap = [-100.0,-100.0,-100.0,0.0,-100.0,100.0,0.0,100.0,100.0,100.0,100.0,0.0,100.0,-100.0,0.0,-100.0]
                 new_ion_cp_seq[new_cp+1].ScanSpotMetersetWeights = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
                 new_ion_cp_seq[new_cp+1].ScanningSpotSize = [28.9 - (0.338*en) + ((2.32e-3)*en**2) - ((7.39e-6)*en**3) + ((9.04e-9)*en**4), 28.9 - (0.338*en) + ((2.32e-3)*en**2) - ((7.39e-6)*en**3) + ((9.04e-9)*en**4)]
                 # print(new_ion_cp_seq[new_cp+1].CumulativeMetersetWeight)
