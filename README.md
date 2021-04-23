@@ -44,7 +44,7 @@ Clone this repo from github:
 git clone https://github.com/UCLHp/QAplans.git
 ```
 
-Create an environment in which the code will run (these instructions use the basic python environment builder included with most Python installs). Open a command terminal and type the following  (you can exclude the part in `[ ]` on the last line as you should already be in the correct directory):
+Create an environment in which the code will run (these instructions use the basic python environment builder included with most Python installs). Open a command terminal and type the following  (you can exclude the parts in `[ ]` for directory paths if you are in the repo directory):
 
 ```console
 cd <path to github repo>/QAplans
@@ -52,19 +52,29 @@ mkdir env
 python -m venv [<path to github repo>/QAplans/]env/
 ```
 
-This creates the environment. Next navigate into the directory `<path to github repo>/QAplans/env/Scripts` and activate the environment with either `Scripts.bat` on Windows or `<SOMETHING HERE>` on Linux/Mac
-
-Finally, install the required packages. Navigate back to `<path to github repo>/QAplans` and run the following command which should install the packages and versions listed below.
+This creates the environment. To activate the environment either use `activate.bat` on Windows or source `activate` on Linux/Mac
 
 ```console
-python -m pip install -r requirements.txt
+##  Windows
+[<path to github repo>/QAplans/]env/Scripts/activate.bat
+##  Linux/Mac
+source [<path to github repo>/QAplans/]env/Scripts/activate
 ```
+
+Install the required packages as instructed in the **Requirements** section below.
 
 To deactivate the virtual environment, simply type `deactivate`, and to remove the virtual environment delete the folder `env`.
 
 ### Requirements
 
-Any specifics, dependencies, use of PipEnv/requirements files
+The following dependency packages will need to be installed. They are as listed in the `requirements.txt` file within this package.<br>
+To install from `requirements.txt`, within your environment, navigate back to `<path to github repo>/TPSprepare/` and run the following command:
+
+```python
+python -m pip install -r requirements.txt
+```
+
+`requirements.txt`:
 
 ```python
 easygui==0.98.1
