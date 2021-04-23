@@ -44,12 +44,12 @@ Clone this repo from github:
 git clone https://github.com/UCLHp/QAplans.git
 ```
 
-Create an environment in which the code will run (these instructions use the basic python environment builder included with most Python installs). Open a command terminal and type the following:
+Create an environment in which the code will run (these instructions use the basic python environment builder included with most Python installs). Open a command terminal and type the following  (you can exclude the part in `[ ]` on the last line as you should already be in the correct directory):
 
 ```console
 cd <path to github repo>/QAplans
 mkdir env
-python -m <path to github repo>/QAplans/env/
+python -m venv [<path to github repo>/QAplans/]env/
 ```
 
 This creates the environment. Next navigate into the directory `<path to github repo>/QAplans/env/Scripts` and activate the environment with either `Scripts.bat` on Windows or `<SOMETHING HERE>` on Linux/Mac
