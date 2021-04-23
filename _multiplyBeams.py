@@ -50,7 +50,7 @@ def multiplyBeams(iFile=None, oFile=None, factor=None):
     if not factor:
         factor = enterbox( title='Multiplication factor', \
                             msg='How many times to multiply each beam', \
-                            default='10', strip=True )
+                            default='5', strip=True )
         factor = int(factor)
 
 
