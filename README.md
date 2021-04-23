@@ -57,6 +57,7 @@ This creates the environment. To activate the environment either use `activate.b
 ```console
 ##  Windows
 [<path to github repo>/QAplans/]env/Scripts/activate.bat
+
 ##  Linux/Mac
 source [<path to github repo>/QAplans/]env/Scripts/activate
 ```
