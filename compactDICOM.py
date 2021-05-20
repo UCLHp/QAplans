@@ -42,6 +42,7 @@ class BEAMdata:
     def __init__(self):
         self.bName = ''  # beam name
         self.type = ''  # beam type (TREATMENT or SETUP)
+        self.gantry = 'Gantry 1'  # gantry name
         self.gAngle = ''  # gantry angle for this beam
         self.cAngle = ''  # couch angle for this beam
         self.rs = None  #  range shifter nominal thickness (2, 3, 5)
@@ -140,7 +141,7 @@ def spotConvert_new(planName=None, data=None, rangeShifter=None):
 ###  From a list of spots in the simple list format:
   #  gantry angle, energy, x, y, MU
   #  convert to the pre-generated pbtDICOM classes
-def spotConvert(planName=None, data=None, rangeShifter=None):
+def spotConvert(planName=None, data=None, rangeShifter=None, gantry=None):
 
     if not data:
         print('no input data supplied');  raise SystemExit()
@@ -162,6 +163,7 @@ def spotConvert(planName=None, data=None, rangeShifter=None):
         #  input various parameters for this beam angle
         qaPlan.beam[an].bName = 'G'+str(angle)
         qaPlan.beam[an].type = 'TREATMENT'
+        qaPlan.beam[an].gantry = str(gantry)
         qaPlan.beam[an].gAngle = angle
         qaPlan.beam[an].cAngle = 0.0
         if rangeShifter != None:

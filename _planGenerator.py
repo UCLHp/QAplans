@@ -40,9 +40,9 @@ if __name__ == '__main__':
 
     type = planType()
 
-    planName, data, doseRate, rangeShifter = spotParameters(type)
+    planName, data, doseRate, rangeShifter, gantry = spotParameters(type)
 
-    dcmData = spotConvert(planName=planName, data=data, rangeShifter=rangeShifter)
+    dcmData = spotConvert(planName=planName, data=data, rangeShifter=rangeShifter, gantry=gantry)
 
     dcmData, doseRate = spotArrange(data=dcmData, doseRate=doseRate)
 

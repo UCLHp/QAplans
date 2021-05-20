@@ -151,6 +151,8 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
 
     for b in range(spotData.numBeams):
 
+        fullDCMdata.IonBeamSequence[b].TreatmentMachineName = spotData.beam[b].gantry
+
         fullDCMdata.IonBeamSequence[b].BeamNumber = b+1
 
         fullDCMdata.IonBeamSequence[b].BeamName = spotData.beam[b].bName

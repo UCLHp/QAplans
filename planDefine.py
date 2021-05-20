@@ -206,7 +206,7 @@ def spotParameters(qaType=None):
         elif qaType['type'] == 'Spot Grid':
             bxMsg = bxMsg + 'A grid of spots at multiple energies\nCan be used to either create a series of grids, dose planes, or a dose cube\n\nEnergy should be given in MeV\nCentral spot on beam-axis\nOdd number of spots required for symmetric fields\n\ntMU is the technical MU used by Varian'
             bxOpts = ['Plan Name', 'Gantry Angle', 'Energies', 'Nspot X', 'Nspot Y', 'Spot spacing (mm)', 'tMU per spot']
-            bxVals = ['Plan', 0, '70, 120, 150, 180, 230', 41, 41, 2.5, 10]
+            bxVals = ['Plan', 0, '70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240', 41, 41, 2.5, 10]
 
             planName, gAngle, Ene, Nx, Ny, Sep, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
             gAngle, Ene, Nx, Ny, Sep, sMU = ([float(gAngle)], list(float(_) for _ in Ene.split(',')), int(Nx), int(Ny), float(Sep), float(sMU))
@@ -259,7 +259,25 @@ def spotParameters(qaType=None):
 
 
 
-    return(planName, data, doseRate, rangeShifter)
+    try:
+        gantry
+    except NameError:
+        bxTitle = 'Gantry'
+        bxMsg = 'Choose a Gantry'
+        bxOpts = ['Gantry 1', 'Gantry 2'] #, 'Gantry 3', 'Gantry 4']
+        gt = buttonbox( title=bxTitle, msg=bxMsg, choices=bxOpts, \
+                        default_choice=bxOpts[0], cancel_choice=bxOpts[0] )
+
+        if gt == bxOpts[0]:  planName = 'G1_' + planName
+        if gt == bxOpts[1]:  planName = 'G2_' + planName
+        # if gt == bxOpts[2]:  planName = 'G3_' + planName
+        # if gt == bxOpts[3]:  planName = 'G4_' + planName
+
+
+
+
+
+    return(planName, data, doseRate, rangeShifter, gantry)
 
 
 
