@@ -147,6 +147,13 @@ def multiplyBeams(iFile=None, oFile=None, factor=None):
 
 
 
+
+    
+    ##  Approve the plan
+    newDCMdata.ApprovalStatus = 'APPROVED'
+
+
+
     newDCMdata.save_as(oFile)
 
 
