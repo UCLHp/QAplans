@@ -50,7 +50,7 @@ def multiplyBeams(iFile=None, oFile=None, factor=None):
     if not factor:
         factor = enterbox( title='Multiplication factor', \
                             msg='How many times to multiply each beam', \
-                            default='10', strip=True )
+                            default='5', strip=True )
         factor = int(factor)
 
 
@@ -144,6 +144,13 @@ def multiplyBeams(iFile=None, oFile=None, factor=None):
         for f in range(factor):
             newDCMdata.IonBeamSequence[n*factor+f].BeamNumber = (fullDCMdata.IonBeamSequence[n].BeamNumber-1)*factor+f+1
             newDCMdata.IonBeamSequence[n*factor+f].BeamName = fullDCMdata.IonBeamSequence[n].BeamName + '-' + str(f+1)
+
+
+
+
+    
+    ##  Approve the plan
+    newDCMdata.ApprovalStatus = 'APPROVED'
 
 
 

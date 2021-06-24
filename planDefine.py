@@ -43,18 +43,31 @@ def plan_type(plan_param={}):
 
 
     # finding out what type of plan file the user wishes to create
-    bx_title = 'QA plan file stucture'
-    bx_msg = 'Select the QA file type you wish to create\n\n\
-                  SG-SE:  Spot Grid (dose plane) at a Single Energy\n\
-                  SG-ME:  Spot Grid (dose plane) at Multiple Energies\n\
-                    CSV:  Create a plan file from a pre-made .csv file of format:\n\
-                          Gantry Angle, Energy, X, Y, MU'
-    bx_opts = ['CSV', 'SG-SE', 'SG-ME']
-
-
-    plan_param['type'] = buttonbox( title=bx_title, msg=bx_msg, \
-                                    choices=bx_opts, default_choice=bx_opts[0], \
-                                    cancel_choice=None )
+    bxTitle = 'QA plan file stucture'
+    # bxMsg = 'Select the QA file type you wish to create\n\n\
+    #               SS-SE:  Single Spot at a Single Energy\n\
+    #               SS-ME:  Single Spot at Multiple Energies\n\
+    #              SS-MGA:  Single Spot at Multiple Gantry Angles\n\
+    #               SG-SE:  Spot Grid (dose plane) at a Single Energy\n\
+    #               SG-ME:  Spot Grid (dose plane) at Multiple Energies\n\
+    #           SG-ME-MGA:  Spot Grid (dose plane) at Multiple Energies and Multiple Gantry Angles\n\
+    #                 CSV:  Create a plan file from a pre-made .csv file of format:\n\
+    #                       Gantry Angle, Energy, X, Y, MU'
+    bxMsg = 'Select the QA file type you wish to create\n\n\
+                  Spot Grid:  A grid of spots \n\
+                              From a single spot to a whole dose plane\n\
+                              Single or multiple energies\n\
+                        CSV:  a pre-made .csv file\n\
+                              Optional header lines start with #:\n\
+                              # DOSE RATE, <number>\n\
+                              # RS, <2/3/5>\n\
+                              Gantry Angle, Energy, X, Y, MU\n\
+                              Gantry Angle, Energy, X, Y, MU     etc.'
+    # bxOpts = ['SS-SE', 'SS-ME', 'SS-MGA', 'SG-SE', 'SG-ME', 'SG-ME-MGA', 'CSV']
+    bxOpts = ['CSV', 'Spot Grid']
+    plan_param['type'] = buttonbox( title=bxTitle, msg=bxMsg, \
+                                choices=bxOpts, default_choice=bxOpts[0], \
+                                cancel_choice=None )
     if plan_param['type'] == None:
         print('Requires a defined spot pattern');  raise SystemExit()
 
@@ -288,6 +301,15 @@ def spot_parameters(plan_param=None):
             planName, gAngle, Emin, Emax, delE, Nx, Ny, Sep, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
             gAngle, Emin, Emax, delE, Nx, Ny, Sep, sMU = ([float(_) for _ in gAngle.split(',')], float(Emin), float(Emax), float(delE), int(Nx), int(Ny), float(Sep), float(sMU))
 
+        elif plan_param['type'] == 'Spot Grid':
+            bxMsg = bxMsg + 'A grid of spots at multiple energies\nCan be used to either create a series of grids, dose planes, or a dose cube\n\nEnergy should be given in MeV\nCentral spot on beam-axis\nOdd number of spots required for symmetric fields\n\ntMU is the technical MU used by Varian'
+            bxOpts = ['Plan Name', 'Gantry Angle', 'Energies', 'Nspot X', 'Nspot Y', 'Spot spacing (mm)', 'tMU per spot']
+            bxVals = ['Plan', 0, '70, 120, 150, 180, 230', 41, 41, 2.5, 10]
+
+            planName, gAngle, Ene, Nx, Ny, Sep, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
+            gAngle, Ene, Nx, Ny, Sep, sMU = ([float(gAngle)], list(float(_) for _ in Ene.split(',')), int(Nx), int(Ny), float(Sep), float(sMU))
+
+
 
 
         data = []
@@ -296,9 +318,14 @@ def spot_parameters(plan_param=None):
             for en in Ene: # numpy.arange(Emin, Emax+delE, delE):
                 for x in range(Nx):
                     for y in range(Ny):
-                        data.append( [an, en, \
-                                      (x-((Nx-1)/2))*Sep, \
-                                      (y-((Ny-1)/2))*Sep, sMU] )
+                        if (y % 2) == 0:
+                            data.append( [an, en, \
+                                          (x-((Nx-1)/2))*Sep, \
+                                          (y-((Ny-1)/2))*Sep, sMU] )
+                        else:
+                            data.append( [an, en, \
+                                          (x-((Nx-1)/2))*Sep, \
+                                          (((Ny-1)/2)-y)*Sep, sMU] )
 
 
 
