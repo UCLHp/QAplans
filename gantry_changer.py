@@ -30,7 +30,7 @@ def gantry_changer(ifile=None, ofile=None, gantry=None):
 
     logging.warning('Starting gantry_changer script\n')
 
-    logging.info('Checking for .ini config file')
+    logging.info('Checking for .ini config file\n')
     change = configparser.ConfigParser()
     try:
         logging.debug('try')
@@ -50,12 +50,12 @@ def gantry_changer(ifile=None, ofile=None, gantry=None):
 
 
 
-    logging.warning('Identifying files')
+    logging.warning('Identify files - MULTIPLE selection possible')
 
     if not ifile:
-        layout = [  [ sg.T('') ], 
-                    [ sg.Text('Plan to change: '), 
-                      sg.Input(), 
+        layout = [  [ sg.T('') ],
+                    [ sg.Text('Plan(s) to change: '),
+                      sg.Input(),
                       sg.FilesBrowse(key='-IN-') ],
                     [ sg.Text('If no output location selected, each plan will have\n_Gtr<N> appended (where <N> is gantry number)') ],
                     [ sg.Text('Output location:'),
@@ -64,9 +64,14 @@ def gantry_changer(ifile=None, ofile=None, gantry=None):
                     [ sg.T('') ],
                     [ sg.OK(), sg.Cancel() ]
                                             ]
-        window = sg.Window('Choose plan for gantry change', layout)#, size=(600,150))
+        window = sg.Window('Choose plan for gantry change - MULTIPLE selection possible', layout)#, size=(600,150))
         event, values = window.read()
-        print(ifile)
+        logging.debug(values['-IN-'])
+        logging.debug(values['-OUT-'])
+        ifile = list(values['-IN-'].split(';'))
+        ofile = list(values['-OUT-'].split(';'))
+        logging.debug(str(ifile))
+        logging.debug(str(ofile))
 
 
 
