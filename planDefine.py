@@ -220,18 +220,22 @@ def spotParameters(qaType=None):
             for en in Ene: # numpy.arange(Emin, Emax+delE, delE):
                 for x in range(Nx):
                     for y in range(Ny):
-                        if (y % 2) == 0:
+                        if (x % 2) == 0:
                             data.append( [an, en, \
                                           (x-((Nx-1)/2))*Sep, \
                                           (y-((Ny-1)/2))*Sep, sMU] )
+                            # print(x, (x-((Nx-1)/2))*Sep, y, (y-((Ny-1)/2))*Sep)
+
                         else:
                             data.append( [an, en, \
                                           (x-((Nx-1)/2))*Sep, \
                                           (((Ny-1)/2)-y)*Sep, sMU] )
+                            # print(x, (x-((Nx-1)/2))*Sep, y, (((Ny-1)/2)-y)*Sep)
 
 
 
-    # print(data)
+
+
 
 
 
