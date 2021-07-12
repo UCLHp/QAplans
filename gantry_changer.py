@@ -31,10 +31,10 @@ def gantry_changer(ifile=None, ofile=None, gantry=None):
     logging.warning('Starting gantry_changer script\n')
 
     logging.info('Checking for .ini config file\n')
-    change = configparser.ConfigParser()
+    param = configparser.ConfigParser()
     try:
         logging.debug('try')
-        change.read('gantry.ini')
+        param.read('gantry.ini')
         gantries = list( re.split( ', ', change['OPT']['gantries'] ) )
     except:
         logging.debug('except')
