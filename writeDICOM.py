@@ -178,7 +178,10 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
             fullDCMdata.IonBeamSequence[b].RangeShifterSequence[0].RangeShifterType = 'BINARY'
         else:
             fullDCMdata.IonBeamSequence[b].NumberOfRangeShifters = 0
-            del fullDCMdata.IonBeamSequence[b].RangeShifterSequence
+            try:
+              del fullDCMdata.IonBeamSequence[b].RangeShifterSequence
+            except:
+              pass
 
 
         # Creating Control Point entries
@@ -212,7 +215,10 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
                 fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].RangeShifterWaterEquivalentThickness = 57.0
             fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence[0].ReferencedRangeShifterNumber = '1'
         else:
-            del fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence
+            try:
+                del fullDCMdata.IonBeamSequence[b].IonControlPointSequence[0].RangeShifterSettingsSequence
+            except:
+                pass
 
 
 
