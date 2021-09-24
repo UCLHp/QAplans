@@ -33,17 +33,18 @@ from pydicom.filereader import dcmread
 
 
 ###  Take a given plan and multiply every beam in that plan by a given value
-def multiplyBeams(iFile=None, oFile=None, factor=None):
+def multiplyBeams(ifile=None, ofile=None, factor=None):
 
 
     # iFile = 'C:\\Users\\andrew\\NHS\\(Canc) Radiotherapy - PBT Physics Team - PBT Physics Team\\QAandCommissioning\\Gantry 1\\Commissioning\\Data\\Outputs\\RN.IDD-G0-E70-20x20-50MU.dcm'
     # iFile = 'C:\\Users\\andrew\\NHS\\(Canc) Radiotherapy - PBT Physics Team - PBT Physics Team\\QAandCommissioning\\Gantry 1\\Commissioning\\Data\\Outputs\\RN.Output-G0-E70-245-10x10-10MU.dcm'
-    if not iFile:
-        iFile = fileopenbox( title='Original plan', \
+    if not ifile:
+        ifile = fileopenbox( title='Original plan', \
                              msg='Template file for which beams to be multiplied', \
                              default=os.path.dirname(os.path.realpath(__file__)), \
-                             filetypes='*.dcm' )
-    iPath, iName = os.path.split(iFile)[0], os.path.split(iFile)[1]
+                             filetypes='*.dcm', \
+                             multiple=True )
+    # iPath, iName = os.path.split(iFile)[0], os.path.split(iFile)[1]
 
 
     # factor = 3
@@ -54,107 +55,111 @@ def multiplyBeams(iFile=None, oFile=None, factor=None):
         factor = int(factor)
 
 
-    oFile = os.path.join( os.path.splitext(iFile)[0] + '_x' + str(factor) + '.dcm' )
-    if not oFile:
-        oFile = filesavebox( title='Output plan', \
-                             default=os.path.join( os.path.splitext(iFile)[0] \
-                                                    + '_x' + str(factor) + '.dcm' ), \
-                             filetypes='*.dcm' )
-    oPath, oName = os.path.split(oFile)[0], os.path.split(oFile)[1]
+    # if not oFile:
+    #     oFile = filesavebox( title='Output plan', \
+    #                          default=os.path.join( os.path.splitext(iFile)[0] \
+    #                                                 + '_x' + str(factor) + '.dcm' ), \
+    #                          filetypes='*.dcm' )
+    # oPath, oName = os.path.split(oFile)[0], os.path.split(oFile)[1]
 
 
+    if not isinstance(ifile, list):
+        list(ifile)
 
 
-    fullDCMdata = dcmread(iFile)
+    for fl in ifile:
 
-    newDCMdata = dcmread(iFile)
+        fullDCMdata = dcmread(fl)
 
-
-
-
-
-    # to duplicate a class object and all elements within need copy.deepcopy
-    # deepcopy ensures there isn't inheritance so changes to one doesn't affect others
+        newDCMdata = dcmread(fl)
 
 
 
 
 
-    #  adjusting the date and time of plan creation to now
-    newDCMdata.RTPlanLabel = deepcopy(fullDCMdata.RTPlanLabel + '_x' + str(factor))
-
-    newDCMdata.RTPlanDate = datetime.datetime.now().strftime('%Y%m%d')
-
-    newDCMdata.RTPlanTime = datetime.datetime.now().strftime('%H%M%S.%f')
+        # to duplicate a class object and all elements within need copy.deepcopy
+        # deepcopy ensures there isn't inheritance so changes to one doesn't affect others
 
 
 
 
-    #  SOPInstanceUID is the unique identifier for each plan
-    #  Final 2 sections are a generated ID number and date/time stamp
-    sopInstUID = fullDCMdata.SOPInstanceUID.rsplit('.',2)
 
-    newDCMdata.SOPInstanceUID = sopInstUID[0] + '.' \
-                                + str(randint(10000, 99999)) + '.' \
-                                + fullDCMdata.RTPlanDate \
-                                + fullDCMdata.RTPlanTime.rsplit('.')[0]
+        #  adjusting the date and time of plan creation to now
+        newDCMdata.RTPlanLabel = deepcopy(fullDCMdata.RTPlanLabel + '_x' + str(factor))
 
+        newDCMdata.RTPlanDate = datetime.datetime.now().strftime('%Y%m%d')
 
-
-
-    #  ReferencedBeamNumber and BeamMeterset
-    #  Need one for each beam in plan, so multiply by factor increase in beams
-    newDCMdata.FractionGroupSequence[0].NumberOfBeams = \
-      deepcopy(fullDCMdata.FractionGroupSequence[0].NumberOfBeams*factor)
-
-    #  making copies of ReferencedBeamSequence for each new beam
-    newDCMdata.FractionGroupSequence[0].ReferencedBeamSequence = []
-    for refBmSeq in fullDCMdata.FractionGroupSequence[0].ReferencedBeamSequence:
-        newDCMdata.FractionGroupSequence[0].ReferencedBeamSequence.extend( [ deepcopy(refBmSeq) for _ in range(factor) ] )
-    #  and changing the beam numbers
-    #  use old sequencing in case orders are reversed later in plan
-    for n in range(len(fullDCMdata.FractionGroupSequence[0].ReferencedBeamSequence)):
-        for f in range(factor):
-            newDCMdata.FractionGroupSequence[0].ReferencedBeamSequence[n*factor+f].ReferencedBeamNumber = (fullDCMdata.FractionGroupSequence[0].ReferencedBeamSequence[n].ReferencedBeamNumber-1)*factor+f+1
+        newDCMdata.RTPlanTime = datetime.datetime.now().strftime('%H%M%S.%f')
 
 
 
 
-    #  Patient setup sequence
-    #  require a PatientSetupSequence for each beam
-    newDCMdata.PatientSetupSequence = []
-    for ptSetSeq in fullDCMdata.PatientSetupSequence:
-        newDCMdata.PatientSetupSequence.extend( [ deepcopy(ptSetSeq) for _ in range(factor) ] )
-    #  and changing the beam numbers
-    #  use old sequencing in case orders are reversed later in plan
-    for n in range(len(fullDCMdata.PatientSetupSequence)):
-        for f in range(factor):
-            newDCMdata.PatientSetupSequence[n*factor+f].PatientSetupNumber = (fullDCMdata.PatientSetupSequence[n].PatientSetupNumber-1)*factor+f+1
+        #  SOPInstanceUID is the unique identifier for each plan
+        #  Final 2 sections are a generated ID number and date/time stamp
+        sopInstUID = fullDCMdata.SOPInstanceUID.rsplit('.',2)
+
+        newDCMdata.SOPInstanceUID = sopInstUID[0] + '.' \
+                                    + str(randint(10000, 99999)) + '.' \
+                                    + fullDCMdata.RTPlanDate \
+                                    + fullDCMdata.RTPlanTime.rsplit('.')[0]
 
 
 
 
-    #  Ion Beam Sequence
-    newDCMdata.IonBeamSequence = []
-    for ionBmSeq in fullDCMdata.IonBeamSequence:
-        newDCMdata.IonBeamSequence.extend( [ deepcopy(ionBmSeq) for _ in range(factor) ] )
-    #  and changing the beam numbers
-    #  use old sequencing in case orders are reversed later in plan
-    for n in range(len(fullDCMdata.IonBeamSequence)):
-        for f in range(factor):
-            newDCMdata.IonBeamSequence[n*factor+f].BeamNumber = (fullDCMdata.IonBeamSequence[n].BeamNumber-1)*factor+f+1
-            newDCMdata.IonBeamSequence[n*factor+f].BeamName = fullDCMdata.IonBeamSequence[n].BeamName + '-' + str(f+1)
+        #  ReferencedBeamNumber and BeamMeterset
+        #  Need one for each beam in plan, so multiply by factor increase in beams
+        newDCMdata.FractionGroupSequence[0].NumberOfBeams = \
+          deepcopy(fullDCMdata.FractionGroupSequence[0].NumberOfBeams*factor)
+
+        #  making copies of ReferencedBeamSequence for each new beam
+        newDCMdata.FractionGroupSequence[0].ReferencedBeamSequence = []
+        for refBmSeq in fullDCMdata.FractionGroupSequence[0].ReferencedBeamSequence:
+            newDCMdata.FractionGroupSequence[0].ReferencedBeamSequence.extend( [ deepcopy(refBmSeq) for _ in range(factor) ] )
+        #  and changing the beam numbers
+        #  use old sequencing in case orders are reversed later in plan
+        for n in range(len(fullDCMdata.FractionGroupSequence[0].ReferencedBeamSequence)):
+            for f in range(factor):
+                newDCMdata.FractionGroupSequence[0].ReferencedBeamSequence[n*factor+f].ReferencedBeamNumber = (fullDCMdata.FractionGroupSequence[0].ReferencedBeamSequence[n].ReferencedBeamNumber-1)*factor+f+1
 
 
 
 
-    
-    ##  Approve the plan
-    newDCMdata.ApprovalStatus = 'APPROVED'
+        #  Patient setup sequence
+        #  require a PatientSetupSequence for each beam
+        newDCMdata.PatientSetupSequence = []
+        for ptSetSeq in fullDCMdata.PatientSetupSequence:
+            newDCMdata.PatientSetupSequence.extend( [ deepcopy(ptSetSeq) for _ in range(factor) ] )
+        #  and changing the beam numbers
+        #  use old sequencing in case orders are reversed later in plan
+        for n in range(len(fullDCMdata.PatientSetupSequence)):
+            for f in range(factor):
+                newDCMdata.PatientSetupSequence[n*factor+f].PatientSetupNumber = (fullDCMdata.PatientSetupSequence[n].PatientSetupNumber-1)*factor+f+1
 
 
 
-    newDCMdata.save_as(oFile)
+
+        #  Ion Beam Sequence
+        newDCMdata.IonBeamSequence = []
+        for ionBmSeq in fullDCMdata.IonBeamSequence:
+            newDCMdata.IonBeamSequence.extend( [ deepcopy(ionBmSeq) for _ in range(factor) ] )
+        #  and changing the beam numbers
+        #  use old sequencing in case orders are reversed later in plan
+        for n in range(len(fullDCMdata.IonBeamSequence)):
+            for f in range(factor):
+                newDCMdata.IonBeamSequence[n*factor+f].BeamNumber = (fullDCMdata.IonBeamSequence[n].BeamNumber-1)*factor+f+1
+                newDCMdata.IonBeamSequence[n*factor+f].BeamName = fullDCMdata.IonBeamSequence[n].BeamName + '-' + str(f+1)
+
+
+
+
+
+        ##  Approve the plan
+        newDCMdata.ApprovalStatus = 'APPROVED'
+
+
+        ofile = os.path.join( os.path.dirname(fl), os.path.splitext(fl)[0] + '_x' + str(factor) + os.path.splitext(fl)[1] )
+
+        newDCMdata.save_as(ofile)
 
 
 
