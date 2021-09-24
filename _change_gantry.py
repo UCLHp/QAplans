@@ -10,12 +10,12 @@ def change_gantry():
     if not isinstance(my_path, list):
         list(my_path)
 
-        gantry = eg.choicebox('Room selection',
-                              'Select desired Gantry',
-                              ['Gantry 1', 'Gantry 2', 'Gantry 3', 'Gantry 4']
-                              )
+    gantry = eg.choicebox('Room selection',
+                          'Select desired Gantry',
+                          ['Gantry 1', 'Gantry 2', 'Gantry 3', 'Gantry 4']
+                          )
 
-     for fl in my_path:
+    for fl in my_path:
         my_dcm = pydicom.dcmread(fl)
 
         # print(f'Number of fields: {len(my_dcm.IonBeamSequence)}\n')
