@@ -59,13 +59,17 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
 
 
     # obtain the output file location
-    oFile = filesavebox( title='Output file',
-                         msg='Select where to save the plan file produced', \
-                         default=os.path.join( os.path.dirname(oFile), 'RN.' \
-                                                + str(spotData.pName) + '.dcm' ), \
-                         filetypes='*.dcm' )
-    oPath, oName = os.path.split(oFile)[0], os.path.split(oFile)[1]
-
+    if not oFile:
+        oFile = filesavebox( title='Output file',
+                            msg='Select where to save the plan file produced', \
+                            default=os.path.join( '../', 'RN.' \
+                                                    + str(spotData.pName) + '.dcm' ), \
+                            filetypes='*.dcm' )
+    else:
+      oPath, oFile = os.path.split(oFile)
+      os.makedirs(oPath, exist_ok=True)
+      oFile = 'RN.'+oFile+'.dcm'
+      oFile = os.path.join(oPath,oFile)
 
 
     fullDCMdata = dcmread(iFile)

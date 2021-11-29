@@ -1,0 +1,27 @@
+{
+  "Energies": [
+    240,
+    230,
+    220,
+    210,
+    200,
+    190,
+    180,
+    170,
+    160,
+    150,
+    140,
+    130,
+    120
+  ],
+  "GantryAngle": 0,
+  "NspotX": 41,
+  "NspotY": 41,
+  "PlanName": "JsonPlan",
+  "PlanType": "Spot Grid",
+  "RangeShifter": 0,
+  "Spacing": 2.5,
+  "TemplateFile": "data\\RN.template_wRS_v16_anon.dcm",
+  "outdir": "outdir",
+  "tMU": 10
+}

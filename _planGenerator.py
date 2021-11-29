@@ -24,30 +24,36 @@
   #  This effectively just calls a range of modules included alongside this file
 
 import os
+import sys
+import json
 
-from planDefine import planType, spotParameters
 from compactDICOM import spotConvert
 from planPrepare import spotArrange
 from writeDICOM import overwriteDICOM
 
 
-
-
-
-
-
 if __name__ == '__main__':
 
-    type = planType()
+    # load from json file if specified
+    print(sys.argv)
+    if len(sys.argv) == 2 and os.path.isfile(sys.argv[1]):
+      try:
+        with open(sys.argv[1], 'r') as f:
+          type = json.load(f)
+      except:
+        raise ValueError("Specify a valid json file.")
+      
+      from planDefineCLI import spotParameters
+      planName, data, doseRate, rangeShifter = spotParameters(type)
+      dcmData = spotConvert(planName=planName, data=data, rangeShifter=rangeShifter)
+      dcmData, doseRate = spotArrange(data=dcmData, doseRate=doseRate)
+      oFile=os.path.join(type['outdir'],planName)
+      overwriteDICOM(spotData=dcmData, iFile=type['TemplateFile'], oFile=oFile)
 
-    planName, data, doseRate, rangeShifter = spotParameters(type)
-
-    dcmData = spotConvert(planName=planName, data=data, rangeShifter=rangeShifter)
-
-    dcmData, doseRate = spotArrange(data=dcmData, doseRate=doseRate)
-
-    #  passing the template file to the write programme
-    # iFile = os.path.join( os.path.dirname( os.path.realpath(__file__) ), \
-    #                         'data', 'RN.template-wRS.dcm' )
-    # overwriteDICOM(spotData=dcmData, iFile=iFile, oFile=type['file'])
-    overwriteDICOM(spotData=dcmData, oFile=type['file'])
+    else:
+      from planDefine import planType, spotParameters
+      type = planType()
+      planName, data, doseRate, rangeShifter = spotParameters(type)
+      dcmData = spotConvert(planName=planName, data=data, rangeShifter=rangeShifter)
+      dcmData, doseRate = spotArrange(data=dcmData, doseRate=doseRate)
+      overwriteDICOM(spotData=dcmData)
