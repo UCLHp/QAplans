@@ -46,7 +46,6 @@ def multiplyBeams(ifile=None, ofile=None, factor=None):
                              multiple=True )
     # iPath, iName = os.path.split(iFile)[0], os.path.split(iFile)[1]
 
-
     # factor = 3
     if not factor:
         factor = enterbox( title='Multiplication factor', \
@@ -68,7 +67,6 @@ def multiplyBeams(ifile=None, ofile=None, factor=None):
 
 
     for fl in ifile:
-
         fullDCMdata = dcmread(fl)
 
         newDCMdata = dcmread(fl)

@@ -35,8 +35,7 @@ from writeDICOM import overwriteDICOM
 if __name__ == '__main__':
 
     # load from json file if specified
-    print(sys.argv)
-    if len(sys.argv) == 2 and os.path.isfile(sys.argv[1]):
+    if len(sys.argv) >= 2 and os.path.isfile(sys.argv[1]):
       try:
         with open(sys.argv[1], 'r') as f:
           type = json.load(f)
@@ -44,11 +43,25 @@ if __name__ == '__main__':
         raise ValueError("Specify a valid json file.")
       
       from planDefineCLI import spotParameters
+      from _multiplyBeams import *
+      from _energy_spacer import *
       planName, data, doseRate, rangeShifter = spotParameters(type)
       dcmData = spotConvert(planName=planName, data=data, rangeShifter=rangeShifter)
       dcmData, doseRate = spotArrange(data=dcmData, doseRate=doseRate)
       oFile=os.path.join(type['outdir'],planName)
       overwriteDICOM(spotData=dcmData, iFile=type['TemplateFile'], oFile=oFile)
+      oPath, oFile = os.path.split(oFile)
+      oFile = 'RN.'+oFile+'.dcm'
+      oFile = os.path.join(oPath,oFile)
+      oFile = os.path.abspath(oFile)
+      if 'm' in sys.argv:
+        beam_multiple = int(type['BeamMultiple'])
+        multiplyBeams(ifile=[oFile], factor=beam_multiple)
+        oPath, oExt = os.path.splitext(oFile)
+        oFile = oPath + '_x' + str(beam_multiple) + oExt
+      if 's' in sys.argv:
+        space = int(type['EnergySpacer'])
+        energy_spacer(ifile=[oFile], ofile=None, space=[space])
 
     else:
       from planDefine import planType, spotParameters
