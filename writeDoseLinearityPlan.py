@@ -1,10 +1,31 @@
+'''
+Alex Grimwood 2022
+
+GUI-based plan file creator for Dose Linearity and Dose Rate Linearity checks on the UCLH ProBeam
+Gantry 1.
+
+Based upon previous code in QAPlans repository.
+
+'''
 from easygui import multenterbox, ynbox
 from compactDICOM import PLANdata, BEAMdata, SPOTdata
 from planPrepare import spotArrange
 from writeDICOM import overwriteDICOM
 
 def create_spots(muSet=None, Nx=None, Ny=None, gantry_angle=None, energy=None, Sep=None, throttle_weights=False):
-    # construct spot data as a stacked list i.e.: [[GA, E, x1, y1, MU, field1]...[GA, E, xn, yn, MU, fieldn]]
+    ''' construct spot data as a stacked list i.e.: [[GA, E, x1, y1, MU, field1]...[GA, E, xn, yn, MU, fieldn]]
+    Params:
+        muSet:              float list of MU spot weights per field
+        Nx:                 int number of spots along x-axis (total spots = Nx x Ny)
+        Ny:                 int number of spots along y-axis (total spots = Nx x Ny)
+        gantry_angle:       float degrees, constant across all fields
+        energy:             float MeV, constant across all fields
+        Sep:                float mm spacing between spots 
+        throttle_weights:   float MU list of low MU spot added to each field, controls dose rate
+    
+    Output:
+        data:               list of spot data defining a single energy layer per field
+    '''
     data = []
     for n, sMU in enumerate(muSet):
         for x in range(Nx):
@@ -27,6 +48,19 @@ def create_spots(muSet=None, Nx=None, Ny=None, gantry_angle=None, energy=None, S
 
 
 def field_spot_data(plan_name=None, mu_list=None, spot_data=None, g_angle=None, rs=None, en=None, field_prefix='MU'):
+    ''' convert spot data list to DICOM-style data struct
+    Params:
+        plan_name:      string plan name
+        mu_list:        float list must reflect the fixed MU spot weights of each field
+        spot_data:      list of spot weight data
+        g_angle:        float degrees gantry angle, must reflect value in spot data list
+        rs:             range shifter (None, 2.0, 3.0, or 5.0)
+        en:             float energy, must be constant across fields and reflect spot data list
+        field_prefix:   string field name prefix
+    
+    Output:
+        planData:       DICOM-like class struct
+    '''
         
     # plan-level info
     planData = PLANdata()
@@ -67,7 +101,8 @@ def field_spot_data(plan_name=None, mu_list=None, spot_data=None, g_angle=None, 
 
 
 def dose_linearity_plan():
-
+    ''' create dose linearity and dose rate linearity plans from GUI inputs and write to DICOM file
+    '''
     # Set Parameters in GUI
     bxTitle = 'Dose Linearity Plan Parameters'
     bxMsg = 'Please enter the values to define the fields\n\n'
@@ -109,8 +144,10 @@ def dose_linearity_plan():
         qaPlan.beam.extend(DLPlan.beam)
         qaPlan.numBeams = qaPlan.numBeams + DLPlan.numBeams
     else:
+        # create plan data
         qaPlan = field_spot_data(plan_name=planName, mu_list=muSorted, spot_data=data, g_angle=ga, rs=None, en=nrg)
-        
+
+    #write to DICOM file    
     dcmData, _ = spotArrange(data=qaPlan, doseRate=spot_MU)
     overwriteDICOM(spotData=dcmData)
 
