@@ -88,8 +88,6 @@ def spotConvert_new(planName=None, data=None, rangeShifter=None):
             print('cannot have two gantry angles in a single beam')
             raise SystemExit()
 
-
-
     qaPlan = PLANdata()
     qaPlan.pName = planName
 
@@ -187,6 +185,54 @@ def spotConvert(planName=None, data=None, rangeShifter=None):
                 qaPlan.beam[an].CP[en].X.append(sp[2])
                 qaPlan.beam[an].CP[en].Y.append(sp[3])
                 qaPlan.beam[an].CP[en].sMeterset.append(sp[4])
+
+    return(qaPlan)
+
+
+def spotConvert_ism(planName=None, data=None, rangeShifter=None):
+
+    if not data:
+        print('no input data supplied');  raise SystemExit()
+
+    qaPlan = PLANdata()
+    qaPlan.pName = planName
+
+    #  identify the number of unique beam angles
+    angleSet = set([_[1] for _ in data])
+    angleSet = sorted(angleSet)
+    qaPlan.numBeams = len(angleSet)
+    #  create a beam entry for each beam angle
+    qaPlan.beam = [BEAMdata() for _ in range(len(angleSet))]
+
+    for an, angle in enumerate(angleSet):
+        #  extract the data at this beam angle
+        beamData = [_ for _ in data if _[1] == angle]
+        #  input various parameters for this beam angle
+        qaPlan.beam[an].bName = str(angle)+'MeV'
+        qaPlan.beam[an].type = 'TREATMENT'
+        qaPlan.beam[an].gAngle = 0.0 # data[0][0]
+        qaPlan.beam[an].cAngle = 0.0
+        if rangeShifter != None:
+            qaPlan.beam[an].rs = rangeShifter
+        qaPlan.beam[an].bMeterset = sum(map(float,[_[4] for _ in beamData]))
+
+        #  identify the number of energy layers at this angle
+        qaPlan.beam[an].numCP = 1
+        #  create a control point (in protons each CP is an energy layer)
+        #  for each energy
+        qaPlan.beam[an].CP = [SPOTdata()]
+
+        #  the data for spots in this energy layer
+        spotData = [_ for _ in beamData if _[1] == angle]
+        qaPlan.beam[an].CP[0].En = angle
+        FWHM = 28.9 - (0.338*angle) + ((2.32e-3)*angle**2) \
+                - ((7.39e-6)*angle**3) + ((9.04e-9)*angle**4)
+        for sp in spotData:
+            qaPlan.beam[an].CP[0].sizeX = FWHM
+            qaPlan.beam[an].CP[0].sizeY = FWHM
+            qaPlan.beam[an].CP[0].X.append(sp[2])
+            qaPlan.beam[an].CP[0].Y.append(sp[3])
+            qaPlan.beam[an].CP[0].sMeterset.append(sp[4])
 
     return(qaPlan)
 

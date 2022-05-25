@@ -27,13 +27,12 @@ import os
 import sys
 import json
 
-from compactDICOM import spotConvert
+from compactDICOM import spotConvert, spotConvert_ism
 from planPrepare import spotArrange
 from writeDICOM import overwriteDICOM
 
 
 if __name__ == '__main__':
-
     # load from json file if specified
     if len(sys.argv) >= 2 and os.path.isfile(sys.argv[1]):
       try:
@@ -62,7 +61,13 @@ if __name__ == '__main__':
       if 's' in sys.argv:
         space = int(type['EnergySpacer'])
         energy_spacer(ifile=[oFile], ofile=None, space=[space])
-
+    elif '-ism' in sys.argv:
+      from planDefine import planType, spotParameters
+      type = planType()
+      planName, data, doseRate, rangeShifter = spotParameters(type)
+      dcmData = spotConvert_ism(planName=planName, data=data, rangeShifter=rangeShifter)
+      dcmData, doseRate = spotArrange(data=dcmData, doseRate=doseRate)
+      overwriteDICOM(spotData=dcmData)
     else:
       from planDefine import planType, spotParameters
       type = planType()

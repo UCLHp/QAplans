@@ -48,7 +48,7 @@ def spotArrange(data=None, doseRate=None):
     Xlim = [-200.0, 200.0]
     Ylim = [-300.0, 300.0]
     # dose rate
-    minD = 5.0
+    minD = 3.0#5.0
 
     if not data:
         print('no spot data supplied'); raise SystemExit()
