@@ -67,7 +67,7 @@ def planType(qaType={}):
                               Gantry Angle, Energy, X, Y, MU\n\
                               Gantry Angle, Energy, X, Y, MU     etc.'
     # bxOpts = ['SS-SE', 'SS-ME', 'SS-MGA', 'SG-SE', 'SG-ME', 'SG-ME-MGA', 'CSV']
-    bxOpts = ['CSV', 'Spot Grid']
+    bxOpts = ['CSV', 'Spot Grid', 'ISM Jig']
     qaType['type'] = buttonbox( title=bxTitle, msg=bxMsg, \
                                 choices=bxOpts, default_choice=bxOpts[0], \
                                 cancel_choice=None )
@@ -211,26 +211,82 @@ def spotParameters(qaType=None):
             planName, gAngle, Ene, Nx, Ny, Sep, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
             gAngle, Ene, Nx, Ny, Sep, sMU = ([float(gAngle)], list(float(_) for _ in Ene.split(',')), int(Nx), int(Ny), float(Sep), float(sMU))
 
+        elif qaType['type'] == 'ISM Jig':
+            bxMsg = bxMsg + 'A grid of spots at multiple energies\nCan be used to either create a series of grids, dose planes, or a dose cube\n\nEnergy should be given in MeV\nCentral spot on beam-axis\nOdd number of spots required for symmetric fields\n\ntMU is the technical MU used by Varian'
+            bxOpts = ['Plan Name', 'Y-Offset (mm)', 'Nspot X', 'Nspot Y', 'Spot spacing (mm)', 'tMU per spot']
+            bxVals = ['ISM4000', '-100', 41, 41, 2.5, 10]
 
-
+            planName, Yoff, Nx, Ny, Sep, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
+            Yoff, Nx, Ny, Sep, sMU = (float(Yoff), int(Nx), int(Ny), float(Sep), float(sMU))
+            gAngle=[float(0)]
+            Ene = [240,200,150,100,70]
+            gridMU = [40,50,70,105,150]
+            chevronNx = 41
+            chevronNy = 57
+            chevronsMU = 5
 
         data = []
         #  now that have all the necessary values, generate the spots
-        for an in gAngle:
-            for en in Ene: # numpy.arange(Emin, Emax+delE, delE):
-                for x in range(Nx):
-                    for y in range(Ny):
-                        if (x % 2) == 0:
-                            data.append( [an, en, \
-                                          (x-((Nx-1)/2))*Sep, \
-                                          (y-((Ny-1)/2))*Sep, sMU] )
-                            # print(x, (x-((Nx-1)/2))*Sep, y, (y-((Ny-1)/2))*Sep)
+        if qaType['type'] == 'ISM Jig': # create 9 spot grid pattern
+            yoffset=Yoff
+            for an in gAngle:
+                for i,en in enumerate(Ene):
+                    # spot grids
+                    data.append( [an, en, -125.000000,-175.000000,gridMU[i],'s'] )
+                    data.append( [an, en, -125.000000,-125.000000,gridMU[i],'s'] )
+                    data.append( [an, en, -125.000000,0.000000,gridMU[i],'s'] )
+                    data.append( [an, en, -125.000000,125.000000,gridMU[i],'s'] )
+                    data.append( [an, en, -125.000000,175.000000,gridMU[i],'s'] )
+                    data.append( [an, en, 0.000000,175.000000,gridMU[i],'s'] )
+                    data.append( [an, en, 0.000000,125.000000,gridMU[i],'s'] )
+                    data.append( [an, en, 0.000000,0.000000,gridMU[i],'s'] )
+                    data.append( [an, en, 0.000000,-125.000000,gridMU[i],'s'] )
+                    data.append( [an, en, 0.000000,-175.000000,gridMU[i],'s'] )
+                    data.append( [an, en, 125.000000,-175.000000,gridMU[i],'s'] )
+                    data.append( [an, en, 125.000000,-125.000000,gridMU[i],'s'] )
+                    data.append( [an, en, 125.000000,0.000000,gridMU[i],'s'] )
+                    data.append( [an, en, 125.000000,125.000000,gridMU[i],'s'] )
+                    data.append( [an, en, 125.000000,175.000000,gridMU[i],'s'] )
+                    # output layers
+                    for x in range(Nx):
+                        for y in range(Ny):
+                            if (x % 2) == 0:
+                                data.append( [an, en, \
+                                            (x-((Nx-1)/2))*Sep, \
+                                            ((y-((Ny-1)/2))*Sep)+yoffset, sMU,'s'] )
 
-                        else:
-                            data.append( [an, en, \
-                                          (x-((Nx-1)/2))*Sep, \
-                                          (((Ny-1)/2)-y)*Sep, sMU] )
-                            # print(x, (x-((Nx-1)/2))*Sep, y, (((Ny-1)/2)-y)*Sep)
+                            else:
+                                data.append( [an, en, \
+                                            (x-((Nx-1)/2))*Sep, \
+                                            ((((Ny-1)/2)-y)*Sep)+yoffset, sMU,'s'] )
+                    # chevron layers
+                    for x in range(chevronNx):
+                        for y in range(chevronNy):
+                            if (x % 2) == 0:
+                                data.append( [an, en, \
+                                            (x-((chevronNx-1)/2))*Sep, \
+                                            ((y-((chevronNy-1)/2))*Sep), chevronsMU,'c'] )
+
+                            else:
+                                data.append( [an, en, \
+                                            (x-((chevronNx-1)/2))*Sep, \
+                                            ((((chevronNy-1)/2)-y)*Sep), chevronsMU,'c'] )
+        else:
+            for an in gAngle:
+                for en in Ene:
+                    for x in range(Nx):
+                        for y in range(Ny):
+                            if (x % 2) == 0:
+                                data.append( [an, en, \
+                                            (x-((Nx-1)/2))*Sep, \
+                                            ((y-((Ny-1)/2))*Sep), sMU] )
+                                # print(x, (x-((Nx-1)/2))*Sep, y, ((y-((Ny-1)/2))*Sep)+yoffset)
+
+                            else:
+                                data.append( [an, en, \
+                                            (x-((Nx-1)/2))*Sep, \
+                                            ((((Ny-1)/2)-y)*Sep), sMU] )
+                                # print(x, (x-((Nx-1)/2))*Sep, y, ((((Ny-1)/2)-y)*Sep)+yoffset)
 
 
 
