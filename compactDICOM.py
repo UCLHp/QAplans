@@ -198,15 +198,19 @@ def spotConvert_ism(planName=None, data=None, rangeShifter=None):
     qaPlan.pName = planName
 
     #  identify the number of unique beam energies
-    energySet = set([_[1] for _ in data])
+    energySet = set([_[1] for _ in data if _[-1] == 's'])
     energySet = sorted(energySet)
-    qaPlan.numBeams = len(energySet)+1 # +1 for chevron field!
+    chevEnergySet = set([_[1] for _ in data if _[-1][0] == 'c'])
+    chevEnergySet = sorted(chevEnergySet)
+    qaPlan.numBeams = len(energySet) + len(chevEnergySet) # spotgrid fields plus chevron fields!
+    print("Grid Energies: "+str(energySet)+"\nChevron Energies: "+str(chevEnergySet))
 
-    #  create a beam entry for each energy and for the chevron (+1)
-    qaPlan.beam = [BEAMdata() for _ in range(len(energySet)+1)]
+    #  create a beam entry for each spot grid and chevron energy layer
+    qaPlan.beam = [BEAMdata() for _ in range(qaPlan.numBeams)]
 
     # output and spot grid control points
     for en, spot_energy in enumerate(energySet):
+        print("Spot grid energy layer: "+str(spot_energy)+" MeV. Beam number: "+str(en+1)+" of "+str(qaPlan.numBeams))
         #  extract the data at this beam energy
         beamData = [_ for _ in data if _[1] == spot_energy and _[-1] == 's']
         #  input various parameters for this beam angle
@@ -236,39 +240,92 @@ def spotConvert_ism(planName=None, data=None, rangeShifter=None):
             qaPlan.beam[en].CP[0].Y.append(sp[3])
             qaPlan.beam[en].CP[0].sMeterset.append(sp[4])
     
-    #chevron field control points
-    idx = en+1
-    #  extract the chevron data
-    beamData = [_ for _ in data if _[-1] == 'c']
-    #  input various parameters for this beam
-    qaPlan.beam[idx].bName = 'Chevron'
-    qaPlan.beam[idx].type = 'TREATMENT'
-    qaPlan.beam[idx].gAngle = 0.0 # data[0][0]
-    qaPlan.beam[idx].cAngle = 0.0
-    if rangeShifter != None:
-        qaPlan.beam[idx].rs = rangeShifter
-    qaPlan.beam[idx].bMeterset = sum(map(float,[_[4] for _ in beamData]))
+    for chev_idx, chev_en in enumerate(chevEnergySet):
+        #chevron field control points
+        idx = en+chev_idx+1
+        print("Chevron energy layer: "+str(chev_en)+" MeV. Beam number: "+str(idx+1)+" of "+str(qaPlan.numBeams))
+        #  extract the chevron data
+        beamData = [_ for _ in data if _[-1] == 'c'+str(chev_en)]
+        #  input various parameters for this beam
+        qaPlan.beam[idx].bName = 'Chevron '+str(chev_en)+' MeV'
+        qaPlan.beam[idx].type = 'TREATMENT'
+        qaPlan.beam[idx].gAngle = 0.0 # data[0][0]
+        qaPlan.beam[idx].cAngle = 0.0
+        if rangeShifter != None:
+            qaPlan.beam[idx].rs = rangeShifter
+        qaPlan.beam[idx].bMeterset = sum(map(float,[_[4] for _ in beamData]))
 
-    #  identify the number of energy layers at this angle
-    energies = set([_[1] for _ in beamData])
-    energies = sorted(energies, reverse=True)
-    qaPlan.beam[idx].numCP = len(energies)
-    #  create a control point (in protons each CP is an energy layer)
-    #  for each energy
-    qaPlan.beam[idx].CP = [SPOTdata() for _ in range(len(energies))]
+        #  identify the number of energy layers at this angle
+        energies = set([_[1] for _ in beamData])
+        energies = sorted(energies, reverse=True)
+        qaPlan.beam[idx].numCP = len(energies)
+        #  create a control point (in protons each CP is an energy layer)
+        #  for each energy
+        qaPlan.beam[idx].CP = [SPOTdata() for _ in range(len(energies))]
 
-    for cen, energy in enumerate(energies):
-        #  the data for spots in this energy layer
-        spotData = [_ for _ in beamData if _[1] == energy]
-        qaPlan.beam[idx].CP[cen].En = energy
-        FWHM = 28.9 - (0.338*energy) + ((2.32e-3)*energy**2) \
-                - ((7.39e-6)*energy**3) + ((9.04e-9)*energy**4)
-        for csp in spotData:
-            qaPlan.beam[idx].CP[cen].sizeX = FWHM
-            qaPlan.beam[idx].CP[cen].sizeY = FWHM
-            qaPlan.beam[idx].CP[cen].X.append(csp[2])
-            qaPlan.beam[idx].CP[cen].Y.append(csp[3])
-            qaPlan.beam[idx].CP[cen].sMeterset.append(csp[4])
+        for cen, energy in enumerate(energies):
+            #  the data for spots in this energy layer
+            spotData = [_ for _ in beamData if _[1] == energy]
+            qaPlan.beam[idx].CP[cen].En = energy
+            FWHM = 28.9 - (0.338*energy) + ((2.32e-3)*energy**2) \
+                    - ((7.39e-6)*energy**3) + ((9.04e-9)*energy**4)
+            for csp in spotData:
+                qaPlan.beam[idx].CP[cen].sizeX = FWHM
+                qaPlan.beam[idx].CP[cen].sizeY = FWHM
+                qaPlan.beam[idx].CP[cen].X.append(csp[2])
+                qaPlan.beam[idx].CP[cen].Y.append(csp[3])
+                qaPlan.beam[idx].CP[cen].sMeterset.append(csp[4])
+
+    return(qaPlan)
+
+    
+def spotConvert_chevron(planName=None, data=None, rangeShifter=None):
+
+    if not data:
+        print('no input data supplied');  raise SystemExit()
+
+    qaPlan = PLANdata()
+    qaPlan.pName = planName
+    angle = 0.0
+
+    #  identify the number of unique beam angles
+    fieldSet = set([_[-1] for _ in data])
+    fieldSet = sorted(fieldSet)
+    qaPlan.numBeams = len(fieldSet)
+    #  create a beam entry for each beam angle
+    qaPlan.beam = [BEAMdata() for _ in range(len(fieldSet))]
+
+    for an, field_name in enumerate(fieldSet):
+        #  extract the data at this beam angle
+        beamData = [_ for _ in data if _[-1] == field_name]
+        #  input various parameters for this beam angle
+        qaPlan.beam[an].bName = field_name
+        qaPlan.beam[an].type = 'TREATMENT'
+        qaPlan.beam[an].gAngle = angle
+        qaPlan.beam[an].cAngle = 0.0
+        if rangeShifter != None:
+            qaPlan.beam[an].rs = rangeShifter
+        qaPlan.beam[an].bMeterset = sum(map(float,[_[4] for _ in beamData]))
+
+        #  identify the number of energy layers at this angle
+        energies = set([_[1] for _ in beamData])
+        qaPlan.beam[an].numCP = len(energies)
+        #  create a control point (in protons each CP is an energy layer)
+        #  for each energy
+        qaPlan.beam[an].CP = [SPOTdata() for _ in range(len(energies))]
+
+        for en, energy in enumerate(energies):
+            #  the data for spots in this energy layer
+            spotData = [_ for _ in beamData if _[1] == energy]
+            qaPlan.beam[an].CP[en].En = energy
+            FWHM = 28.9 - (0.338*energy) + ((2.32e-3)*energy**2) \
+                    - ((7.39e-6)*energy**3) + ((9.04e-9)*energy**4)
+            for sp in spotData:
+                qaPlan.beam[an].CP[en].sizeX = FWHM
+                qaPlan.beam[an].CP[en].sizeY = FWHM
+                qaPlan.beam[an].CP[en].X.append(sp[2])
+                qaPlan.beam[an].CP[en].Y.append(sp[3])
+                qaPlan.beam[an].CP[en].sMeterset.append(sp[4])
 
     return(qaPlan)
 

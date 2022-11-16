@@ -42,15 +42,15 @@ def spotParameters(qaType=None):
         Nx = qaType['NspotX']
         Ny = qaType['NspotY']
         Sep = qaType['Spacing']
-        sMU = qaType['tMU']
+        tMU = qaType['tMU']
         rs = qaType['RangeShifter']
-        gAngle, Ene, Nx, Ny, Sep, sMU, rs = ([float(gAngle)], [float(_) for _ in Ene], int(Nx), int(Ny), float(Sep), float(sMU), float(rs))
+        gAngle, Ene, Nx, Ny, Sep, tMU, rs = ([float(gAngle)], [float(_) for _ in Ene], int(Nx), int(Ny), float(Sep), [float(_) for _ in tMU], float(rs))
 
     
     data = []
     #  generate the spots
     for an in gAngle:
-        for en in Ene: # numpy.arange(Emin, Emax+delE, delE):
+        for en, sMU in zip(Ene, tMU): # numpy.arange(Emin, Emax+delE, delE):
             for x in range(Nx):
                 for y in range(Ny):
                     if (x % 2) == 0:

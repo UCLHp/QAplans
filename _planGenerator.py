@@ -27,7 +27,7 @@ import os
 import sys
 import json
 
-from compactDICOM import spotConvert, spotConvert_ism
+from compactDICOM import spotConvert, spotConvert_ism, spotConvert_chevron
 from planPrepare import spotArrange
 from writeDICOM import overwriteDICOM
 
@@ -66,6 +66,13 @@ if __name__ == '__main__':
       type = planType()
       planName, data, doseRate, rangeShifter = spotParameters(type)
       dcmData = spotConvert_ism(planName=planName, data=data, rangeShifter=rangeShifter)
+      dcmData, doseRate = spotArrange(data=dcmData, doseRate=doseRate)
+      overwriteDICOM(spotData=dcmData)
+    elif '-chev' in sys.argv:
+      from planDefine import planType, spotParameters
+      type = planType()
+      planName, data, doseRate, rangeShifter = spotParameters(type)
+      dcmData = spotConvert_chevron(planName=planName, data=data, rangeShifter=rangeShifter)
       dcmData, doseRate = spotArrange(data=dcmData, doseRate=doseRate)
       overwriteDICOM(spotData=dcmData)
     else:

@@ -67,10 +67,11 @@ def planType(qaType={}):
                               Gantry Angle, Energy, X, Y, MU\n\
                               Gantry Angle, Energy, X, Y, MU     etc.'
     # bxOpts = ['SS-SE', 'SS-ME', 'SS-MGA', 'SG-SE', 'SG-ME', 'SG-ME-MGA', 'CSV']
-    bxOpts = ['CSV', 'Spot Grid', 'ISM Jig']
+    bxOpts = ['CSV', 'Spot Grid', 'ISM Jig', 'Chevron']
     qaType['type'] = buttonbox( title=bxTitle, msg=bxMsg, \
                                 choices=bxOpts, default_choice=bxOpts[0], \
                                 cancel_choice=None )
+    print(qaType)
     if qaType['type'] == None:
         print('Requires a defined spot pattern');  raise SystemExit()
 
@@ -213,21 +214,55 @@ def spotParameters(qaType=None):
 
         elif qaType['type'] == 'ISM Jig':
             bxMsg = bxMsg + 'A grid of spots at multiple energies\nCan be used to either create a series of grids, dose planes, or a dose cube\n\nEnergy should be given in MeV\nCentral spot on beam-axis\nOdd number of spots required for symmetric fields\n\ntMU is the technical MU used by Varian'
-            bxOpts = ['Plan Name', 'Y-Offset (mm)', 'Nspot X', 'Nspot Y', 'Spot spacing (mm)', 'tMU per spot']
-            bxVals = ['ISM4000', '-100', 41, 41, 2.5, 10]
+            bxOpts = ['Plan Name', 'Y-Offset (mm)', 'Nspot X', 'Nspot Y', 'Spot spacing (mm)', 'tMU per spot', 'Chevron Energies (MeV)']
+            bxVals = ['ISM4000', '-100', 41, 41, 2.5, 10, '240, 200, 150, 100, 70']
 
-            planName, Yoff, Nx, Ny, Sep, sMU = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
-            Yoff, Nx, Ny, Sep, sMU = (float(Yoff), int(Nx), int(Ny), float(Sep), float(sMU))
+            planName, Yoff, Nx, Ny, Sep, sMU, ChevEns = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
+            Yoff, Nx, Ny, Sep, sMU, ChevEns = (float(Yoff), int(Nx), int(Ny), float(Sep), float(sMU), list(float(_) for _ in ChevEns.split(',')))
             gAngle=[float(0)]
             Ene = [240,200,150,100,70]
             gridMU = [40,50,70,105,150]
-            chevronNx = 41
-            chevronNy = 57
-            chevronsMU = 5
+            chevronNx = 61
+            chevronNy = 81
+            chevronsMU = 10
+        
+        elif qaType['type'] == 'Chevron':
+            bxMsg = bxMsg + 'A grid of spots at multiple energies\nCan be used to either create a series of grids, dose planes, or a dose cube\n\nEnergy should be given in MeV\nCentral spot on beam-axis\nOdd number of spots required for symmetric fields\n\ntMU is the technical MU used by Varian'
+            bxOpts = ['Plan Name', 'Nspots X', 'Nspots Y', 'Spot spacing (mm)', 'MU per spot', 'Chevron Energies Min, Max (MeV)', 'Repeat Field N times']
+            bxVals = ['xxxxxxxxx', 61, 81, 2.5, 10, '70,210',3]
+            planName, chevronNx, chevronNy, Sep, chevronsMU, ChevEns, Reps = multenterbox(title=bxTitle, msg=bxMsg, fields=bxOpts, values=bxVals)
+            chevronNx, chevronNy, Sep, chevronsMU, ChevEns, Reps = (int(chevronNx), int(chevronNy), float(Sep), int(chevronsMU), list(int(_) for _ in ChevEns.split(',')), int(Reps))
+            an=[float(0)]
 
+        #  now we have all the necessary values, generate the spots
         data = []
-        #  now that have all the necessary values, generate the spots
-        if qaType['type'] == 'ISM Jig': # create 9 spot grid pattern
+        if qaType['type'] == 'Chevron':
+            # energy spacer coords
+            spacer_x = [-50.0,-50.0,-50.0,  0.0, 50.0, 50.0, 50.0,  0.0]
+            spacer_y = [-50.0,  0.0, 50.0, 50.0, 50.0,  0.0,-50.0,-50.0]
+            for i in range(0,Reps):
+                print("######## REP: "+str(i)+" ##### "+str(ChevEns))
+                for cen in range(max(ChevEns),min(ChevEns),-10):
+                    print(cen)
+                    # chevron layers
+                    for x in range(chevronNx):
+                        for y in range(chevronNy):
+                            if (x % 2) == 0:
+                                data.append( [an, cen, \
+                                            (x-((chevronNx-1)/2))*Sep, \
+                                            ((y-((chevronNy-1)/2))*Sep), chevronsMU,'Chev '+str(i+1)] )
+                            else:
+                                data.append( [an, cen, \
+                                            (x-((chevronNx-1)/2))*Sep, \
+                                            ((((chevronNy-1)/2)-y)*Sep), chevronsMU,'Chev '+str(i+1)] )
+                    # energy spacer layers
+                    for stepen in range(cen-2,cen-10,-2):
+                        if stepen>=72 and cen>min(ChevEns):
+                            for spotx, spoty in zip(spacer_x, spacer_y):
+                                data.append( [an, stepen, spotx, spoty, 10, 'Chev '+str(i+1)] )
+
+
+        elif qaType['type'] == 'ISM Jig': # create 9 spot grid pattern
             yoffset=Yoff
             for an in gAngle:
                 for i,en in enumerate(Ene):
@@ -259,18 +294,20 @@ def spotParameters(qaType=None):
                                 data.append( [an, en, \
                                             (x-((Nx-1)/2))*Sep, \
                                             ((((Ny-1)/2)-y)*Sep)+yoffset, sMU,'s'] )
+                
+                for i,cen in enumerate(ChevEns):
                     # chevron layers
                     for x in range(chevronNx):
                         for y in range(chevronNy):
                             if (x % 2) == 0:
-                                data.append( [an, en, \
+                                data.append( [an, cen, \
                                             (x-((chevronNx-1)/2))*Sep, \
-                                            ((y-((chevronNy-1)/2))*Sep), chevronsMU,'c'] )
+                                            ((y-((chevronNy-1)/2))*Sep), chevronsMU,'c'+str(cen)] )
 
                             else:
-                                data.append( [an, en, \
+                                data.append( [an, cen, \
                                             (x-((chevronNx-1)/2))*Sep, \
-                                            ((((chevronNy-1)/2)-y)*Sep), chevronsMU,'c'] )
+                                            ((((chevronNy-1)/2)-y)*Sep), chevronsMU,'c'+str(cen)] )
         else:
             for an in gAngle:
                 for en in Ene:
