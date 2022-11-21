@@ -3,6 +3,7 @@
 import os
 import sys
 import json
+import matplotlib.pyplot as plt
 from easygui import fileopenbox
 
 from compactDICOM import PLANdata, BEAMdata, SPOTdata
@@ -21,6 +22,10 @@ def chevron_field(data=None, spacer_step=None, spot=None, field_name=None):
         output
             data            Nx6 list
     '''
+    
+    #for plotting
+    # i = []
+    # j = []    
     ChevEns = sorted(spot['ChevronEns'], reverse=True)  # Sort chevron energies
     an = float(spot['gAngle'])  # gantry angle should be zero
     for n,cen in enumerate(ChevEns):
@@ -31,18 +36,35 @@ def chevron_field(data=None, spacer_step=None, spot=None, field_name=None):
                     data.append( [an, cen, \
                                 (x-((spot['chevronNx']-1)/2))*spot['ChevronSep'], \
                                 ((y-((spot['chevronNy']-1)/2))*spot['ChevronSep']), spot['chevronMU'], field_name] )
+                    # i.extend([ (x-((spot['chevronNx']-1)/2))*spot['ChevronSep'] ])
+                    # j.extend([ ((y-((spot['chevronNy']-1)/2))*spot['ChevronSep']) ])
                 else:
                     data.append( [an, cen, \
                                 (x-((spot['chevronNx']-1)/2))*spot['ChevronSep'], \
                                 ((((spot['chevronNy']-1)/2)-y)*spot['ChevronSep']), spot['chevronMU'], field_name] )
+                    # i.extend([ (x-((spot['chevronNx']-1)/2))*spot['ChevronSep'] ])
+                    # j.extend([ ((((spot['chevronNy']-1)/2)-y)*spot['ChevronSep']) ])
         # energy spacer layers every spacer_step MeV
         spacer_step = int(abs(spacer_step))
         if n+1<len(ChevEns):
             for stepen in range(cen-spacer_step,ChevEns[n+1],-1*spacer_step):
                 if stepen>70 and cen>min(ChevEns):
                     print("  energy spacer: "+str(stepen))
-                    for spotx, spoty in zip(spot['spacer_x'], spot['spacer_y']):
+                    for spotx, spoty in zip(spot['chevron_spacer_x'], spot['chevron_spacer_y']):
                         data.append( [an, stepen, spotx, spoty, spot['chevronMU'], field_name] )
+                        # i.extend([spotx])
+                        # j.extend([spoty])
+    
+    print(f"Number of Chevron Spots: {len(data)*int(spot['Reps'])}")
+
+    # plt.plot(i,j,'k.')
+    # plt.axis('equal')
+    # plt.plot([-200,200],[0,0],'b-')
+    # plt.plot([0,0],[-200,200],'b-')
+    # plt.xlim([-200, 200])
+    # plt.ylim([-200, 200])
+    # plt.savefig('test.png')
+    # plt.show()
     return data
 
 def pre_irradiation(data=None, spot=None, energy=170, field_name=None):
@@ -60,6 +82,7 @@ def pre_irradiation(data=None, spot=None, energy=170, field_name=None):
                 data.append( [an, en, \
                             (x-((spot['outputNx']-1)/2))*spot['OutputSep'], \
                             ((((spot['outputNy']-1)/2)-y)*spot['OutputSep'])+spot['yoffset'], spot['outputMU'], field_name] )
+    print(f"Number of Pre-irradiation Spots: {len(data)}")
     return(data)
 
 
@@ -123,6 +146,7 @@ def spot_grid_field(data=None, output_field=None, spacer_step=None, spot=None, f
                     print("  energy spacer: "+str(stepen))
                     for spotx, spoty in zip(spot['spacer_x'], spot['spacer_y']):
                         data.append( [an, stepen, spotx, spoty, 10, field_name] )
+    print(f"Number of Grid Output Spots: {len(data)*int(spot['Reps'])}")
     return data
 
 
@@ -155,6 +179,8 @@ def pism_define(json_file=None):
         'chevronMU': 10,  # spot weighting for chevron
         'gAngle': 0,  # gantry angle must be zero
         'yoffset': -100,  # output field y-offset from centre (mm)
+        'chevron_spacer_x': [-50.0,-50.0,-50.0,0.0,50.0,50.0,50.0,0.0], # chevron energy x spacer coords
+        'chevron_spacer_y': [-150.0,-100.0,-50.0,-50.0,-50.0,-100.0,-150.0,-150.0], # chevron energy y spacer coords
         'spacer_x': [-50.0,-50.0,-50.0,0.0,50.0,50.0,50.0,0.0], # energy x spacer coords
         'spacer_y': [-150.0,-100.0,-50.0,-50.0,-50.0,-100.0,-150.0,-150.0], # energy y spacer coords
         'outputSpacerStep': [5], # output spacer energy step in MeV
@@ -180,7 +206,7 @@ def pism_define(json_file=None):
 
     for i in range(0,Reps):  # create spots for each field
         if 'Chevron' in spot['Patterns']:
-            data = chevron_field(data=data, spacer_step=5, spot=spot, field_name='Chevron '+str(i+1))  # Chevron spots
+            data = chevron_field(data=data, spacer_step=2, spot=spot, field_name='Chevron '+str(i+1))  # Chevron spots
         if op and i==0:
             data = pre_irradiation(data=data, spot=spot, energy=170, field_name='PreIrrad '+str(i+1))  # pre-irradiation field
         if 'Spots' in spot['Patterns']:
@@ -254,6 +280,6 @@ if __name__ == '__main__':
       planName, data, doseRate, rangeShifter, gAngle = pism_define(True)
       dcmData = spotConvertByField(gAngle=gAngle, planName=planName, data=data, rangeShifter=rangeShifter)
       dcmData, doseRate = spotArrange(data=dcmData, doseRate=doseRate)
-      overwriteDICOM(spotData=dcmData)
+      overwriteDICOM(spotData=dcmData, oFile=f'..{os.sep}{planName}')
 
 
