@@ -206,7 +206,7 @@ def pism_define(json_file=None):
 
     for i in range(0,Reps):  # create spots for each field
         if 'Chevron' in spot['Patterns']:
-            data = chevron_field(data=data, spacer_step=2, spot=spot, field_name='Chevron '+str(i+1))  # Chevron spots
+            data = chevron_field(data=data, spacer_step=10, spot=spot, field_name='Chevron '+str(i+1))  # Chevron spots
         if op and i==0:
             data = pre_irradiation(data=data, spot=spot, energy=170, field_name='PreIrrad '+str(i+1))  # pre-irradiation field
         if 'Spots' in spot['Patterns']:
