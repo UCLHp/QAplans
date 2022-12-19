@@ -47,8 +47,8 @@ def chevron_field(data=None, spacer_step=None, spot=None, field_name=None):
         # energy spacer layers every spacer_step MeV
         spacer_step = int(abs(spacer_step))
         if n+1<len(ChevEns):
-            for stepen in range(cen-spacer_step,ChevEns[n+1],-1*spacer_step):
-                if stepen>70 and cen>min(ChevEns):
+            for stepen in range(int(cen)-spacer_step,round(ChevEns[n+1]),-1*spacer_step):
+                if stepen>70 and int(cen)>min(ChevEns):
                     print("  energy spacer: "+str(stepen))
                     for spotx, spoty in zip(spot['chevron_spacer_x'], spot['chevron_spacer_y']):
                         data.append( [an, stepen, spotx, spoty, spot['chevronMU'], field_name] )
