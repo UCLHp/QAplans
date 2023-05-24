@@ -1,0 +1,52 @@
+{
+    "planName": "PostISM",
+    "OutputSep": 2.5,
+    "ChevronSep": 5.0,
+    "chevronNx": 31,
+    "chevronNy": 41,
+    "outputNx": 41,
+    "outputNy": 41,
+    "ChevronEns": [
+        200,
+        170,
+        150,
+        120,
+        100
+    ],
+    "SpotEns": [
+        240,
+        200,
+        150,
+        100,
+        70
+    ],
+    "SpotMU": [
+        40,
+        50,
+        70,
+        105,
+        150
+    ],
+    "outputMU": 10,
+    "chevronMU": 4,
+    "gAngle": 0,
+    "yoffset": -100,
+    "outputSpacerStep": 5,
+    "chevron_spacer_x": [-75.0, -75.0, -75.0, -75.0],
+    "chevron_spacer_y": [100.0, 50.0, -50.0, 100.0],
+    "spacer_x": [-50.0, -50.0, -50.0, -50.0, -50.0,
+                 -25.0, -25.0, 0.0, 0.0, 25.0, 25.0,
+                 50.0, 50.0, 50.0, 50.0, 50.0
+    ],
+    "spacer_y": [-150.0, -125.0, -100, -75, -50.0,
+                 -50.0, -150.0, -150.0, -50.0, -50.0, -150.0,
+                 -150.0, -125.0, -100.0, -75.0, -50.0
+
+    ],
+    "Reps": 2,
+    "Patterns": [
+        "Spots",
+        "Outputs",
+        "Chevron"
+    ]
+}

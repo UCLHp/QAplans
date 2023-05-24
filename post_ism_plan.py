@@ -45,13 +45,14 @@ def chevron_field(data=None, spacer_step=None, spot=None, field_name=None):
                     # i.extend([ (x-((spot['chevronNx']-1)/2))*spot['ChevronSep'] ])
                     # j.extend([ ((((spot['chevronNy']-1)/2)-y)*spot['ChevronSep']) ])
         # energy spacer layers every spacer_step MeV
-        spacer_step = int(abs(spacer_step))
-        if n+1<len(ChevEns):
-            for stepen in range(int(cen)-spacer_step,round(ChevEns[n+1]),-1*spacer_step):
-                if stepen>70 and int(cen)>min(ChevEns):
-                    print("  energy spacer: "+str(stepen))
-                    for spotx, spoty in zip(spot['chevron_spacer_x'], spot['chevron_spacer_y']):
-                        data.append( [an, stepen, spotx, spoty, spot['chevronMU'], field_name] )
+        if spacer_step:
+            spacer_step = int(abs(spacer_step))
+            if n+1<len(ChevEns):
+                for stepen in range(int(cen)-spacer_step,round(ChevEns[n+1]),-1*spacer_step):
+                    if stepen>70 and int(cen)>min(ChevEns):
+                        print("  energy spacer: "+str(stepen))
+                        for spotx, spoty in zip(spot['chevron_spacer_x'], spot['chevron_spacer_y']):
+                            data.append( [an, stepen, spotx, spoty, spot['chevronMU'], field_name] )
                         # i.extend([spotx])
                         # j.extend([spoty])
     
@@ -146,6 +147,11 @@ def spot_grid_field(data=None, output_field=None, spacer_step=None, spot=None, f
                     print("  energy spacer: "+str(stepen))
                     for spotx, spoty in zip(spot['spacer_x'], spot['spacer_y']):
                         data.append( [an, stepen, spotx, spoty, 10, field_name] )
+                if stepen>70 and en>min(Ens) and en<=100:
+                    print("  energy spacer: "+str(stepen))
+                    for spotx, spoty in zip(spot['spacer_x'], spot['spacer_y']):
+                        data.append( [an, stepen, spotx, spoty, 10, field_name] )
+
     print(f"Number of Grid Output Spots: {len(data)*int(spot['Reps'])}")
     return data
 
@@ -204,13 +210,18 @@ def pism_define(json_file=None):
     else:
         op = False
 
+    # Fields
+    if op:
+        data = pre_irradiation(data=data, spot=spot, energy=170, field_name='0 PreIrrad')  # pre-irradiation field
+    n=0
+    for i in range(0,Reps):  # create spots for each field
+        if 'Spots' in spot['Patterns']:
+            n+=1
+            data = spot_grid_field(data=data, output_field=op, spacer_step=spot['outputSpacerStep'], spot=spot, field_name=str(n)+' SpotOP '+str(i+1))  # Spot grids w optional outputs
     for i in range(0,Reps):  # create spots for each field
         if 'Chevron' in spot['Patterns']:
-            data = chevron_field(data=data, spacer_step=10, spot=spot, field_name='Chevron '+str(i+1))  # Chevron spots
-        if op and i==0:
-            data = pre_irradiation(data=data, spot=spot, energy=170, field_name='PreIrrad '+str(i+1))  # pre-irradiation field
-        if 'Spots' in spot['Patterns']:
-            data = spot_grid_field(data=data, output_field=op, spacer_step=spot['outputSpacerStep'], spot=spot, field_name='SpotOP '+str(i+1))  # Spot grids w optional outputs
+            n+=1
+            data = chevron_field(data=data, spacer_step=None, spot=spot, field_name=str(n)+' Chevron '+str(i+1))  # Chevron spots
 
     # set doseRate to minimum MU
     doseRate = min([_[4] for _ in data])

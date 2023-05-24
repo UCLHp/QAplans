@@ -70,6 +70,7 @@ def overwriteDICOM(spotData=None, iFile=None, oFile=None):
       os.makedirs(oPath, exist_ok=True)
       oFile = 'RN.'+oFile+'.dcm'
       oFile = os.path.join(oPath,oFile)
+      print(oFile)
 
 
     fullDCMdata = dcmread(iFile)
